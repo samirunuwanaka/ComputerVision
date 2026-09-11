@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EN3160 Assignment 1 - Task Breakdown & Template Guide</title>
+
+    <!-- Reveal.js CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/theme/dracula.min.css" id="theme">
+    
+    <!-- Code syntax highlighting -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/monokai-sublime.min.css">
+
+    <!-- Print PDF stylesheet -->
+    <script>
+        var link = document.createElement( 'link' );
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match( /print-pdf/gi ) ? 
+            'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/print/pdf.min.css' : 
+            'https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/print/paper.min.css';
+        document.getElementsByTagName( 'head' )[0].appendChild( link );
+    </script>
+
+    <style>
+        .reveal h1, .reveal h2, .reveal h3 {
+            text-transform: none;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .reveal h2 {
+            color: #50fa7b;
+            border-bottom: 2px solid #6272a4;
+            padding-bottom: 10px;
+        }
+        .badge {
+            background-color: #ff79c6;
+            color: #282a36;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            vertical-align: middle;
+            font-weight: bold;
+        }
+        .box {
+            background: #44475a;
+            padding: 15px 25px;
+            border-radius: 8px;
+            border-left: 5px solid #bd93f9;
+            margin: 15px 0;
+            text-align: left;
+            font-size: 0.85em;
+        }
+        .formula-box {
+            background: #282a36;
+            border: 1px solid #ffb86c;
+            padding: 12px;
+            border-radius: 6px;
+            margin: 10px 0;
+            color: #ffb86c;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            text-align: left;
+            font-size: 0.85em;
+        }
+        ul {
+            font-size: 0.85em;
+            line-height: 1.5;
+        }
+        .highlight-text {
+            color: #8be9fd;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="reveal">
+        <div class="slides">
+
+            <!-- Title Slide -->
+            <section>
+                <h1>EN3160 Assignment 1</h1>
+                <h3>Intensity Transformations & Neighborhood Filtering</h3>
+                <p><span class="badge">TEMPLATE & TASK GUIDE</span></p>
+                <br>
+                <p><small>Course: Image Processing & Machine Vision | Instructor: Ranga Rodrigo</small></p>
+                <p><small>Interactive Presentation Deck (Exportable to PDF)</small></p>
+            </section>
+
+            <!-- Guidelines & Submission -->
+            <section>
+                <h2>Submission & Policy Rules</h2>
+                <div class="grid-2">
+                    <div class="box">
+                        <h4>📋 Rules & Deliverables</h4>
+                        <ul>
+                            <li>Report MUST be exported directly from Jupyter Notebook as PDF (<code>your_index_a01.pdf</code>).</li>
+                            <li>Strict <strong>10-page limit</strong> (Penalty: -20 marks per extra page).</li>
+                            <li>Include Name and Index Number inside the PDF.</li>
+                            <li>Includes <strong>5%</strong> of final module grade.</li>
+                        </ul>
+                    </div>
+                    <div class="box">
+                        <h4>🔗 GitHub Requirements</h4>
+                        <ul>
+                            <li>Must include active <strong>GitHub profile link</strong> in report.</li>
+                            <li>Commit work regularly with timestamps to demonstrate reasonable progress.</li>
+                            <li>Understanding evaluated via final exam questions.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Roadmap -->
+            <section>
+                <h2>Assignment Overview</h2>
+                <div class="box">
+                    <ol>
+                        <li><strong>Q1:</strong> Piecewise Linear Intensity Transformation</li>
+                        <li><strong>Q2:</strong> Brain Slice Tissue Accentuation (White & Gray Matter)</li>
+                        <li><strong>Q3:</strong> Gamma Correction in L*a*b* Color Space</li>
+                        <li><strong>Q4:</strong> Vibrance Enhancement in HSV Color Space</li>
+                        <li><strong>Q5:</strong> Custom Histogram Equalization</li>
+                        <li><strong>Q6:</strong> Selective Foreground Histogram Equalization</li>
+                        <li><strong>Q7:</strong> Sobel Filtering & 1D Separable Convolutions</li>
+                        <li><strong>Q8:</strong> Image Zooming (Nearest Neighbor vs Bilinear)</li>
+                        <li><strong>Q9:</strong> GrabCut Segmentation & Background Blurring</li>
+                        <li><strong>Q10:</strong> Edge-Preserving Bilateral Filtering</li>
+                    </ol>
+                </div>
+            </section>
+
+            <!-- Question 1 -->
+            <section>
+                <h2>Q1: Piecewise Linear Intensity Transform</h2>
+                <div class="grid-2">
+                    <div>
+                        <p><strong>Goal:</strong> Implement custom <code>intensity_transform(im, breakpoints)</code>.</p>
+                        <div class="formula-box">
+                            breakpoints = [<br>
+                            &nbsp;&nbsp;[0, 0], [50, 50], [100, 150],<br>
+                            &nbsp;&nbsp;[150, 255], [255, 255]<br>
+                            ]
+                        </div>
+                    </div>
+                    <div>
+                        <div class="box">
+                            <h4>Tasks:</h4>
+                            <ul>
+                                <li>Use Look-Up Table (LUT) or <code>np.interp</code>.</li>
+                                <li>Test on image <code>im01.png</code>.</li>
+                                <li>Plot transformation curve $T(r)$.</li>
+                                <li>Display original & transformed images side-by-side.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Question 2 -->
+            <section>
+                <h2>Q2: Brain Slice Tissue Accentuation</h2>
+                <div class="box">
+                    <p><strong>Target:</strong> Brain proton density slice (<code>im02.png</code>)</p>
+                    <div class="grid-2">
+                        <div>
+                            <h4 style="color:#8be9fd;">(a) White Matter</h4>
+                            <p>Design breakpoints to boost intensity values corresponding to white matter regions while darkening other background structures.</p>
+                        </div>
+                        <div>
+                            <h4 style="color:#ff79c6;">(b) Gray Matter</h4>
+                            <p>Design breakpoints to selectively isolate and enhance intensity band of gray matter.</p>
+                        </div>
+                    </div>
+                    <p style="margin-top:15px;"><small>Plot both transformation functions and output resulting brain slices.</small></p>
+                </div>
+            </section>
+
+            <!-- Question 3 -->
+            <section>
+                <h2>Q3: Gamma Correction in L*a*b* Space</h2>
+                <div class="grid-2">
+                    <div>
+                        <p><strong>Image:</strong> <code>im03.png</code> (Girl on rocks)</p>
+                        <div class="formula-box">
+                            L_out = 255 * (L_in / 255)^γ
+                        </div>
+                        <p><small>Apply gamma scaling ONLY to $L^*$ lightness plane.</small></p>
+                    </div>
+                    <div>
+                        <div class="box">
+                            <h4>Steps:</h4>
+                            <ul>
+                                <li>Convert BGR $ightarrow$ Lab via <code>cv.COLOR_BGR2LAB</code>.</li>
+                                <li>Apply power-law transform to $L^*$ plane.</li>
+                                <li>State chosen $\gamma$ value.</li>
+                                <li>Plot $L^*$ plane histograms before and after.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Question 4 -->
+            <section>
+                <h2>Q4: Vibrance Enhancement in HSV Space</h2>
+                <div class="box">
+                    <p><strong>Image:</strong> <code>im04.jpg</code> (Spiderman & Zendaya)</p>
+                    <div class="formula-box">
+                        f(x) = min( x + a * 128 * e^(-(x-128)^2 / (2 * σ^2)), 255 )
+                    </div>
+                    <p><small>where $x \in [0, 255]$, $a \in [0, 1]$, and $\sigma = 70$.</small></p>
+                    <ul>
+                        <li>Split image into $H, S, V$ planes.</li>
+                        <li>Apply non-linear enhancement $f(x)$ to Saturation plane $S$.</li>
+                        <li>Tune factor $a$ for natural vibrance without oversaturation.</li>
+                        <li>Display original image, vibrance image, and transformation plot.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Question 5 -->
+            <section>
+                <h2>Q5: Custom Histogram Equalization</h2>
+                <div class="grid-2">
+                    <div>
+                        <p><strong>Image:</strong> <code>im05.jpg</code> (Pollen grains)</p>
+                        <div class="formula-box">
+                            PDF: p(r_k) = n_k / (M * N)<br>
+                            CDF: T(r_k) = Σ p(r_j)<br>
+                            s_k = round(255 * T(r_k))
+                        </div>
+                    </div>
+                    <div>
+                        <div class="box">
+                            <h4>Requirements:</h4>
+                            <ul>
+                                <li>Write manual function without using <code>cv.equalizeHist</code>.</li>
+                                <li>Calculate intensity frequency counts manually.</li>
+                                <li>Plot original vs equalized histograms and images.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Question 6 -->
+            <section>
+                <h2>Q6: Selective Foreground Equalization</h2>
+                <div class="box">
+                    <p><strong>Image:</strong> <code>q1.jpeg</code> / Fig. 6 (Portrait)</p>
+                    <ul>
+                        <li><strong>(a)</strong> Convert to HSV and display $H, S, V$ planes in grayscale.</li>
+                        <li><strong>(b)</strong> Threshold best plane to build binary foreground mask.</li>
+                        <li><strong>(c)</strong> Mask foreground with <code>cv.bitwise_and</code> and calculate histogram.</li>
+                        <li><strong>(d)</strong> Compute cumulative sum using <code>np.cumsum</code>.</li>
+                        <li><strong>(e)</strong> Equalize foreground intensities only.</li>
+                        <li><strong>(f)</strong> Combine equalized foreground with original background.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Question 7 -->
+            <section>
+                <h2>Q7: Sobel Filtering & Separable Kernels</h2>
+                <div class="box">
+                    <p><strong>Image:</strong> <code>q2.jpeg</code> (Einstein)</p>
+                    <p>Implement Sobel filtering using 3 techniques:</p>
+                    <ol>
+                        <li>OpenCV built-in <code>cv.filter2D</code>.</li>
+                        <li>Custom manual 2D convolution.</li>
+                        <li>Kernel separability property:
+                            <div class="formula-box" style="text-align:center;">
+                                [[1, 0, -1], [2, 0, -2], [1, 0, -1]] = [1, 2, 1]^T * [1, 0, -1]
+                            </div>
+                        </li>
+                    </ol>
+                    <p><small>Compare execution times and numerical consistency across all three methods.</small></p>
+                </div>
+            </section>
+
+            <!-- Question 8 -->
+            <section>
+                <h2>Q8: Image Zooming & Interpolation</h2>
+                <div class="grid-2">
+                    <div>
+                        <p>Write function <code>zoom_image(im, factor, method)</code> for $s \in (0, 10]$.</p>
+                        <ul>
+                            <li><strong>Method A:</strong> Nearest-Neighbor</li>
+                            <li><strong>Method B:</strong> Bilinear Interpolation</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div class="box">
+                            <h4>Evaluation Metric:</h4>
+                            <p>Scale small images by factor of 4 and compare with high-res target using Normalized SSD:</p>
+                            <div class="formula-box">
+                                SSD = Σ (I_orig - I_zoom)^2 / Σ I_orig^2
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Question 9 -->
+            <section>
+                <h2>Q9: GrabCut & Background Blurring</h2>
+                <div class="box">
+                    <p><strong>Image:</strong> Marguerite Daisy (Fig. 8)</p>
+                    <ul>
+                        <li><strong>(a)</strong> Segment flower using <code>cv.grabCut</code>. Show final mask, foreground, background.</li>
+                        <li><strong>(b)</strong> Heavily blur background (Gaussian Filter) and composite with sharp flower.</li>
+                        <li><strong>(c) Discussion:</strong> Analyze why background immediately surrounding flower edges appears dark.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Question 10 -->
+            <section>
+                <h2>Q10: Edge-Preserving Bilateral Filtering</h2>
+                <div class="grid-2">
+                    <div>
+                        <p><strong>Image:</strong> Lake Minaret (Fig. 9)</p>
+                        <ul>
+                            <li><strong>(a)</strong> Apply <code>cv.bilateralFilter</code> with parameters $\sigma_s, \sigma_r$. Compare with standard Gaussian Blur.</li>
+                            <li><strong>(b)</strong> Write custom bilateral filter algorithm from scratch.</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <div class="box">
+                            <h4>Quantitative Comparison:</h4>
+                            <p>Compare custom bilateral output against OpenCV reference using PSNR or SSIM metrics.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- How to Export to PDF -->
+            <section>
+                <h2>How to Export Slides to PDF</h2>
+                <div class="box">
+                    <ol>
+                        <li>Open this HTML file in your web browser (Chrome or Edge recommended).</li>
+                        <li>Add <code>?print-pdf</code> to the URL in your browser address bar:
+                            <br><code style="color:#50fa7b;">file:///.../assignment_01_presentation.html?print-pdf</code>
+                        </li>
+                        <li>Open the Print Dialog (Press <strong>Ctrl + P</strong> or <strong>Cmd + P</strong>).</li>
+                        <li>Set <strong>Destination</strong> to "Save as PDF".</li>
+                        <li>Set <strong>Layout</strong> to "Landscape".</li>
+                        <li>Enable <strong>Background graphics</strong> option under More Settings.</li>
+                        <li>Click <strong>Save</strong>!</li>
+                    </ol>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- Reveal.js Scripts -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/reveal.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.5.0/plugin/highlight/highlight.min.js"></script>
+    <script>
+        Reveal.initialize({
+            controls: true,
+            progress: true,
+            center: true,
+            hash: true,
+            slideNumber: 'c/t',
+            transition: 'slide',
+            plugins: [ RevealHighlight ]
+        });
+    </script>
+</body>
+</html>
