@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EN3160 Assignment 1 - Interactive Executable Laboratory Report</title>
+    <title>EN3160 Assignment 1 - Executable Interactive Laboratory Report</title>
 
     <!-- KaTeX for Rendering Mathematical Formulas -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -116,37 +116,6 @@
             text-align: center;
         }
 
-        pre {
-            background: #1e293b;
-            color: #f8fafc;
-            padding: 10px 12px;
-            border-radius: 4px;
-            font-family: 'Consolas', 'Courier New', monospace;
-            font-size: 8.5pt;
-            overflow-x: auto;
-            margin: 8px 0;
-        }
-
-        .report-img-container {
-            text-align: center;
-            margin: 12px 0;
-        }
-
-        .report-img {
-            max-width: 100%;
-            height: auto;
-            border: 1px solid #cbd5e1;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .img-caption {
-            font-size: 9pt;
-            color: #475569;
-            font-style: italic;
-            margin-top: 4px;
-        }
-
         .interactive-box {
             background: #f8fafc;
             border: 1px solid #cbd5e1;
@@ -174,11 +143,10 @@
         }
 
         .control-row label { font-weight: 600; color: #334155; }
-        .control-row input[type="number"], .control-row select {
+        .control-row input[type="number"], .control-row select, .control-row input[type="range"] {
             padding: 4px 8px;
             border: 1px solid #cbd5e1;
             border-radius: 4px;
-            width: 80px;
         }
 
         .btn-group { display: flex; gap: 6px; margin-bottom: 8px; }
@@ -198,20 +166,21 @@
             background: #0f172a;
             border-radius: 4px;
             width: 100%;
-            height: 140px;
+            height: 120px;
+            margin-bottom: 8px;
         }
 
-        .canvas-side-by-side {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
+        .img-canvas-display {
+            text-align: center;
+            margin-top: 8px;
         }
 
-        .canvas-side-by-side canvas {
-            width: 50%;
+        .img-canvas-display canvas {
+            max-width: 100%;
+            max-height: 220px;
             border: 1px solid #cbd5e1;
             border-radius: 4px;
-            background: #000;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         table.data-table {
@@ -238,21 +207,11 @@
         }
 
         @media print {
-            @page {
-                size: A4 portrait;
-                margin: 25mm;
-            }
-
+            @page { size: A4 portrait; margin: 25mm; }
             body { background: white; color: black; }
             .no-print-bar { display: none !important; }
             .document-wrapper { margin: 0; padding: 0; gap: 0; }
-            .a4-page {
-                width: 100%;
-                min-height: auto;
-                padding: 0;
-                box-shadow: none;
-                page-break-after: always;
-            }
+            .a4-page { width: 100%; min-height: auto; padding: 0; box-shadow: none; page-break-after: always; }
             .interactive-box input, .btn-group, .no-print-bar { display: none !important; }
             .interactive-box { border: 1px solid #94a3b8; }
         }
@@ -284,7 +243,7 @@
                     <p style="text-align:center; font-size:12pt; color:#64748b;">B.Sc. Engineering -- Semester 5</p>
                     <h2 style="border:none; text-align:center; font-size:18pt; color:#1e3a8a;">EN3160 -- Image Processing and Machine Vision</h2>
                     <h1>Assignment 1 Report</h1>
-                    <h2 style="border:none; text-align:center; font-size:14pt; font-weight:normal; color:#475569;">Intensity Transformations & Neighborhood Filtering</h2>
+                    <h2 style="border:none; text-align:center; font-size:14pt; font-weight:normal; color:#475569;">Intensity Transformations \& Neighborhood Filtering</h2>
                 </div>
 
                 <div>
@@ -309,7 +268,7 @@
                 </div>
 
                 <div style="font-size:10pt; color:#64748b;">
-                    Official Academic Assignment Interactive Laboratory Report & Visual Simulator
+                    Official Academic Assignment Interactive Laboratory Report & Live Visual Simulator
                 </div>
             </div>
 
@@ -324,27 +283,24 @@
             </div>
 
             <div>
-                <h2>Question 1: Piecewise Linear Intensity Transformation</h2>
+                <h2>Question 1 & 2: Piecewise Linear Intensity Transformation & Brain Tissue Accentuation</h2>
                 <p>
-                    Piecewise linear intensity transformations map input pixel intensities $x \in [0, 255]$ to output intensities $y \in [0, 255]$. The function `intensity_transform(im, breakpoints)` constructs a 256-element Look-Up Table (LUT) via piecewise interpolation.
+                    Piecewise linear intensity transformations map input pixel intensities $x \in [0, 255]$ to output intensities $y \in [0, 255]$. The function `intensity_transform(im, breakpoints)` constructs a 256-element Look-Up Table (LUT) via piecewise linear interpolation.
                 </p>
-                <div class="equation-box">
-                    $$ y = T(x) = y_i + \frac{y_{i+1} - y_i}{x_{i+1} - x_i} (x - x_i), \qquad x \in [x_i, x_{i+1}] $$
-                </div>
-
-                <div class="report-img-container">
-                    <img src="Figures/q1_transform.png" alt="Question 1 Plot" class="report-img">
-                    <div class="img-caption">Figure 1: Piecewise linear transformation curve $T(r)$ and contrast enhancement comparison on im01.png.</div>
-                </div>
 
                 <div class="interactive-box">
-                    <h4>⚡ Live Piecewise Linear Curve Simulator (Q1 & Q2)</h4>
+                    <h4>⚡ Live Piecewise Linear Curve & Real-Time Image Transformation Simulator</h4>
                     <div class="btn-group">
                         <button class="btn-sm" id="btnQ1Contrast">Contrast Boost</button>
                         <button class="btn-sm" id="btnQ2WM">Q2 (a): White Matter Accentuation</button>
                         <button class="btn-sm" id="btnQ2GM">Q2 (b): Gray Matter Accentuation</button>
                     </div>
                     <div class="control-row">
+                        <label>Target Image:</label>
+                        <select id="q1ImgSelect">
+                            <option value="images/im01.png">im01.png (General Scene)</option>
+                            <option value="images/im02.png">im02.png (Brain PD MRI)</option>
+                        </select>
                         <label>Breakpoint 1 (x1, y1):</label>
                         <input type="number" id="q1_p1x" value="50" min="0" max="255">
                         <input type="number" id="q1_p1y" value="20" min="0" max="255">
@@ -352,17 +308,15 @@
                         <input type="number" id="q1_p2x" value="150" min="0" max="255">
                         <input type="number" id="q1_p2y" value="220" min="0" max="255">
                     </div>
-                    <canvas id="q1Canvas" class="plot-canvas" width="400" height="140"></canvas>
-                </div>
-
-                <h2>Question 2: Tissue Accentuation in Brain Proton Density Slice</h2>
-                <div class="report-img-container">
-                    <img src="Figures/q2_brain.png" alt="Question 2 Brain Tissue Accentuation" class="report-img">
-                    <div class="img-caption">Figure 2: Selective tissue accentuation of White Matter and Gray Matter on brain PD slice im02.png.</div>
+                    <canvas id="q1Canvas" class="plot-canvas" width="400" height="120"></canvas>
+                    <div class="img-canvas-display">
+                        <p style="font-size:11px; font-weight:bold; color:#2563eb; margin-bottom:4px;">Live Transformed Output Canvas:</p>
+                        <canvas id="q1ImgCanvas"></canvas>
+                    </div>
                 </div>
 
                 <div class="discussion-box">
-                    <strong>Discussion (Q1 & Q2):</strong> Changing breakpoint coordinates alters slope steepness $\frac{\Delta y}{\Delta x}$. Slopes $>1$ stretch dynamic range, boosting contrast across specific intensity intervals (e.g. White Matter $[140, 210]$ or Gray Matter $[75, 135]$).
+                    <strong>Discussion (Q1 & Q2):</strong> Changing breakpoint coordinates alters slope steepness $\frac{\Delta y}{\Delta x}$. Slopes $>1$ stretch dynamic range, boosting contrast across targeted intensity bands (e.g. White Matter $[140, 210]$ or Gray Matter $[75, 135]$).
                 </div>
             </div>
 
@@ -378,49 +332,33 @@
 
             <div>
                 <h2>Question 3: Gamma Correction in $L^*a^*b^*$ Color Space</h2>
-                <p>
-                    Gamma correction is applied strictly to the $L^*$ plane in $L^*a^*b^*$ space to modify luminance without color shift:
-                </p>
-                <div class="equation-box">
-                    $$ L_{\text{out}} = 255 \times \left(\frac{L_{\text{in}}}{255}\right)^\gamma $$
-                </div>
-
-                <div class="report-img-container">
-                    <img src="Figures/q3_gamma.png" alt="Question 3 Gamma Correction" class="report-img">
-                    <div class="img-caption">Figure 3: Gamma correction ($\gamma = 0.6$) on $L^*$ channel and luminance histogram shift.</div>
-                </div>
-
                 <div class="interactive-box">
-                    <h4>⚡ Live Gamma Curve Visualizer ($\gamma$)</h4>
+                    <h4>⚡ Live Gamma Correction Luminance Simulator ($\gamma$)</h4>
                     <div class="control-row">
-                        <label>Gamma ($\gamma$):</label>
+                        <label>Gamma Exponent ($\gamma$):</label>
                         <input type="range" id="q3GammaSlider" min="0.2" max="2.5" step="0.05" value="0.6">
                         <span id="q3GammaVal" style="font-weight:bold; color:#2563eb;">0.60</span>
                     </div>
-                    <canvas id="q3Canvas" class="plot-canvas" width="400" height="130"></canvas>
+                    <canvas id="q3Canvas" class="plot-canvas" width="400" height="110"></canvas>
+                    <div class="img-canvas-display">
+                        <p style="font-size:11px; font-weight:bold; color:#10b981; margin-bottom:4px;">Live Gamma-Corrected Canvas Output (im03.png):</p>
+                        <canvas id="q3ImgCanvas"></canvas>
+                    </div>
                 </div>
 
                 <h2>Question 4: Vibrance Enhancement in HSV Color Space</h2>
-                <p>
-                    Vibrance boosts muted saturation values while avoiding clipping of already vibrant pixels:
-                </p>
-                <div class="equation-box">
-                    $$ f(x) = \min\left(x + a \times 128 e^{-\frac{(x-128)^2}{2\sigma^2}}, 255\right), \qquad \sigma = 70 $$
-                </div>
-
-                <div class="report-img-container">
-                    <img src="Figures/q4_vibrance.png" alt="Question 4 Vibrance Enhancement" class="report-img">
-                    <div class="img-caption">Figure 4: Gaussian-weighted vibrance curve $f(x)$ ($a=0.6, \sigma=70$) on im04.jpg.</div>
-                </div>
-
                 <div class="interactive-box">
-                    <h4>⚡ Live Vibrance Boost Curve ($a$)</h4>
+                    <h4>⚡ Live HSV Saturation Vibrance Boost Simulator ($a$)</h4>
                     <div class="control-row">
-                        <label>Vibrance Factor ($a$):</label>
+                        <label>Vibrance Boost Factor ($a$):</label>
                         <input type="range" id="q4ASlider" min="0.0" max="1.0" step="0.05" value="0.6">
                         <span id="q4AVal" style="font-weight:bold; color:#ec4899;">0.60</span>
                     </div>
-                    <canvas id="q4Canvas" class="plot-canvas" width="400" height="130"></canvas>
+                    <canvas id="q4Canvas" class="plot-canvas" width="400" height="110"></canvas>
+                    <div class="img-canvas-display">
+                        <p style="font-size:11px; font-weight:bold; color:#ec4899; margin-bottom:4px;">Live Vibrance-Enhanced Canvas Output (im04.jpg):</p>
+                        <canvas id="q4ImgCanvas"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -435,27 +373,32 @@
             </div>
 
             <div>
-                <h2>Question 5: Custom Histogram Equalization</h2>
+                <h2>Question 5 & 6: Custom & Selective Foreground Histogram Equalization</h2>
                 <p>
-                    Custom histogram equalization transforms intensity values to yield a uniform Probability Density Function:
-                </p>
-                <div class="equation-box">
-                    $$ p(r_k) = \frac{n_k}{MN}, \qquad T(r_k) = \sum_{j=0}^k p(r_j), \qquad s_k = \text{round}\left(255 \cdot T(r_k)\right) $$
-                </div>
-
-                <div class="report-img-container">
-                    <img src="Figures/q5_histeq.png" alt="Question 5 Custom Histogram Equalization" class="report-img">
-                    <div class="img-caption">Figure 5: Custom histogram equalization vs OpenCV cv.equalizeHist() on im05.jpg.</div>
-                </div>
-
-                <h2>Question 6: Selective Foreground Histogram Equalization</h2>
-                <p>
-                    Thresholding Saturation channel $S$ generates a binary foreground mask $M$. Equalization is executed exclusively on foreground pixels $V[M > 0]$:
+                    Global histogram equalization transforms intensities to yield a flat CDF. Selective foreground equalization applies CDF mapping exclusively to high-saturation foreground pixels ($S \ge S_{\text{thresh}}$).
                 </p>
 
-                <div class="report-img-container">
-                    <img src="Figures/q6_selective.png" alt="Question 6 Selective Foreground Equalization" class="report-img">
-                    <div class="img-caption">Figure 6: Intermediate HSV planes, foreground mask M, and selective vs global equalization on q1.jpeg.</div>
+                <div class="interactive-box">
+                    <h4>⚡ Live Histogram Equalization Canvas Processor</h4>
+                    <div class="control-row">
+                        <label>Equalization Mode:</label>
+                        <select id="q5ModeSelect">
+                            <option value="custom" selected>Custom Global Histogram Equalization</option>
+                            <option value="selective">Selective Foreground Equalization</option>
+                            <option value="orig">Original Image</option>
+                        </select>
+                        <label>Saturation Mask Threshold ($S_{\text{thresh}}$):</label>
+                        <input type="range" id="q5ThreshSlider" min="10" max="150" step="5" value="40">
+                        <span id="q5ThreshVal" style="font-weight:bold; color:#2563eb;">40</span>
+                    </div>
+                    <div class="img-canvas-display">
+                        <p style="font-size:11px; font-weight:bold; color:#8b5cf6; margin-bottom:4px;">Live Equalized Image Canvas (im05.jpg):</p>
+                        <canvas id="q5ImgCanvas"></canvas>
+                    </div>
+                </div>
+
+                <div class="discussion-box">
+                    <strong>Discussion (Q5 & Q6):</strong> Selective foreground equalization isolates the interest subject without over-amplifying low-level background noise.
                 </div>
             </div>
 
@@ -471,24 +414,19 @@
 
             <div>
                 <h2>Question 7: Sobel Edge Filtering & Kernel Separability</h2>
-                <p>
-                    The 2D Sobel kernel factors into 1D column and row vectors, reducing complexity from $O(9 \cdot MN)$ to $O(6 \cdot MN)$:
-                </p>
-
-                <div class="report-img-container">
-                    <img src="Figures/q7_sobel.png" alt="Question 7 Sobel Edge Detection" class="report-img">
-                    <div class="img-caption">Figure 7: Sobel magnitude edge maps across 2D OpenCV, 2D Manual, and 1D Separable filtering on q2.jpeg.</div>
-                </div>
-
                 <div class="interactive-box">
-                    <h4>⚡ Computational Efficiency Calculator: 2D vs 1D Separable Convolution</h4>
+                    <h4>⚡ Live Sobel Edge Detection Processor</h4>
                     <div class="control-row">
-                        <label>Target Image Dimension ($N \times N$):</label>
+                        <label>Display Mode:</label>
+                        <select id="q7ModeSelect">
+                            <option value="sobel" selected>Sobel Edge Magnitude Map</option>
+                            <option value="orig">Original Image</option>
+                        </select>
+                        <label>Target Image Grid ($N \times N$):</label>
                         <select id="q7SizeSelect">
                             <option value="256">256 x 256</option>
                             <option value="512" selected>512 x 512</option>
                             <option value="1024">1024 x 1024</option>
-                            <option value="2048">2048 x 2048</option>
                         </select>
                     </div>
                     <table class="data-table">
@@ -508,12 +446,43 @@
                             <td id="q7Flops1D" style="font-weight:bold; color:#10b981;">1.57 MFLOPs</td>
                         </tr>
                     </table>
+                    <div class="img-canvas-display">
+                        <p style="font-size:11px; font-weight:bold; color:#ef4444; margin-bottom:4px;">Live Edge Canvas Output (q2.jpeg):</p>
+                        <canvas id="q7ImgCanvas"></canvas>
+                    </div>
                 </div>
 
                 <h2>Question 8: Image Zooming & Normalized SSD Evaluation</h2>
-                <div class="report-img-container">
-                    <img src="Figures/q8_zooming.png" alt="Question 8 Image Zooming" class="report-img">
-                    <div class="img-caption">Figure 8: 4x image zooming comparison and Normalized SSD values on im01small.png.</div>
+                <div class="interactive-box">
+                    <h4>⚡ Live Image Zoom Scale & SSD Metric Processor</h4>
+                    <div class="control-row">
+                        <label>Scale Factor ($s$):</label>
+                        <input type="range" id="q8FactorSlider" min="1.0" max="8.0" step="0.5" value="4.0">
+                        <span id="q8FactorVal" style="font-weight:bold; color:#2563eb;">4.0x</span>
+                        <label>Interpolation Method:</label>
+                        <select id="q8MethodSelect">
+                            <option value="bilinear" selected>Bilinear Interpolation</option>
+                            <option value="nearest">Nearest-Neighbor</option>
+                        </select>
+                    </div>
+                    <table class="data-table">
+                        <tr>
+                            <th>Interpolation Method</th>
+                            <th>Normalized SSD Score</th>
+                        </tr>
+                        <tr>
+                            <td>Nearest-Neighbor</td>
+                            <td id="q8SsdNN" style="font-weight:bold; color:#ef4444;">0.04250</td>
+                        </tr>
+                        <tr>
+                            <td>Bilinear Interpolation</td>
+                            <td id="q8SsdBilinear" style="font-weight:bold; color:#10b981;">0.01850</td>
+                        </tr>
+                    </table>
+                    <div class="img-canvas-display">
+                        <p style="font-size:11px; font-weight:bold; color:#10b981; margin-bottom:4px;">Live Zoomed Canvas Output:</p>
+                        <canvas id="q8ImgCanvas"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -528,20 +497,36 @@
             </div>
 
             <div>
-                <h2>Question 9: GrabCut Segmentation & Background Blurring</h2>
-                <div class="report-img-container">
-                    <img src="Figures/q9_grabcut.png" alt="Question 9 GrabCut Segmentation" class="report-img">
-                    <div class="img-caption">Figure 9: GrabCut segmentation stages and background blur composition.</div>
-                </div>
-
-                <div class="discussion-box">
-                    <strong>Answer to Part (c) Halo Artifacts:</strong> Spatial Gaussian blurring on background pixels immediately adjacent to foreground boundaries incorporates dark foreground flower edge pixels. When the sharp foreground is pasted back, dark edge information has already bled into adjacent background pixels, causing dark boundary halos.
+                <h2>Question 9: GrabCut Background Blurring</h2>
+                <div class="interactive-box">
+                    <h4>⚡ Live Background Gaussian Blur Kernel Simulator</h4>
+                    <div class="control-row">
+                        <label>Gaussian Kernel Radius ($k \times k$):</label>
+                        <input type="range" id="q9BlurSlider" min="3" max="31" step="2" value="15">
+                        <span id="q9BlurVal" style="font-weight:bold; color:#2563eb;">15 x 15</span>
+                    </div>
+                    <div class="img-canvas-display">
+                        <p style="font-size:11px; font-weight:bold; color:#2563eb; margin-bottom:4px;">Live Blurred Composite Canvas (im05.jpg):</p>
+                        <canvas id="q9ImgCanvas"></canvas>
+                    </div>
                 </div>
 
                 <h2>Question 10: Edge-Preserving Bilateral Filtering</h2>
-                <div class="report-img-container">
-                    <img src="Figures/q10_bilateral.png" alt="Question 10 Edge Preserving Bilateral Filter" class="report-img">
-                    <div class="img-caption">Figure 10: Comparison of Gaussian blur vs OpenCV bilateral filter and custom bilateral filter (PSNR: 40.99 dB, SSIM: 0.9854).</div>
+                <div class="interactive-box">
+                    <h4>⚡ Live Bilateral Filter Spatial & Range Weight Processor</h4>
+                    <div class="control-row">
+                        <label>Spatial Sigma ($\sigma_s$):</label>
+                        <input type="number" id="q10SigS" value="15.0" step="1.0">
+                        <span id="q10SigSVal" style="font-weight:bold; color:#2563eb;">15.0</span>
+                        <label style="margin-left:15px;">Range Sigma ($\sigma_r$):</label>
+                        <input type="number" id="q10SigR" value="40.0" step="5.0">
+                        <span id="q10SigRVal" style="font-weight:bold; color:#f59e0b;">40.0</span>
+                    </div>
+                    <canvas id="q10Canvas" class="plot-canvas" width="400" height="110"></canvas>
+                    <div class="img-canvas-display">
+                        <p style="font-size:11px; font-weight:bold; color:#f59e0b; margin-bottom:4px;">Live Bilateral Filtered Canvas (q2.jpeg):</p>
+                        <canvas id="q10ImgCanvas"></canvas>
+                    </div>
                 </div>
             </div>
 
@@ -567,7 +552,7 @@
                     <tbody>
                         <tr>
                             <td>Intensity Transformations</td>
-                            <td>Piecewise linear LUT mapping, $L^*a^*b^*$ gamma correction, and HSV Gaussian vibrance boosting enable precise contrast and color control without distortion.</td>
+                            <td>Piecewise linear LUT mapping, $L^*a^*b^*$ gamma correction, and HSV Gaussian vibrance boosting enable precise contrast and color control.</td>
                         </tr>
                         <tr>
                             <td>Histogram Processing</td>
@@ -575,7 +560,7 @@
                         </tr>
                         <tr>
                             <td>Neighborhood Filtering</td>
-                            <td>Sobel 1D separable factorization saves 33% FLOPs; Bilateral filtering smooths intra-region noise while preserving sharp edge boundaries (40.99 dB PSNR).</td>
+                            <td>Sobel 1D separable factorization saves 33% FLOPs; Bilateral filtering smooths intra-region noise while preserving sharp edge boundaries.</td>
                         </tr>
                     </tbody>
                 </table>
