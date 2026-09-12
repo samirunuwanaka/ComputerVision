@@ -243,15 +243,15 @@
 <body>
 
     <!-- Hidden Image Assets for Canvas Processing -->
-    <img id="img_q1_src1" src="images/im01.png" class="hidden-img-source" alt="src1">
-    <img id="img_q1_src2" src="images/im02.png" class="hidden-img-source" alt="src2">
-    <img id="img_q3_src" src="images/im03.png" class="hidden-img-source" alt="src3">
-    <img id="img_q4_src" src="images/im04.jpg" class="hidden-img-source" alt="src4">
-    <img id="img_q5_src" src="images/im05.jpg" class="hidden-img-source" alt="src5">
-    <img id="img_q7_src" src="images/q2.jpeg" class="hidden-img-source" alt="src7">
-    <img id="img_q8_src" src="images/im01small.png" class="hidden-img-source" alt="src8">
-    <img id="img_q9_src" src="images/im05.jpg" class="hidden-img-source" alt="src9">
-    <img id="img_q10_src" src="images/q2.jpeg" class="hidden-img-source" alt="src10">
+    <img id="img_q1_src1" src="images/images/im01.png" class="hidden-img-source" alt="src1">
+    <img id="img_q1_src2" src="images/images/im02.png" class="hidden-img-source" alt="src2">
+    <img id="img_q3_src" src="images/images/im03.png" class="hidden-img-source" alt="src3">
+    <img id="img_q4_src" src="images/images/im04.jpg" class="hidden-img-source" alt="src4">
+    <img id="img_q5_src" src="images/images/im05.jpg" class="hidden-img-source" alt="src5">
+    <img id="img_q7_src" src="images/images/q2.jpeg" class="hidden-img-source" alt="src7">
+    <img id="img_q8_src" src="images/images/im01small.png" class="hidden-img-source" alt="src8">
+    <img id="img_q9_src" src="images/images/im05.jpg" class="hidden-img-source" alt="src9">
+    <img id="img_q10_src" src="images/images/q2.jpeg" class="hidden-img-source" alt="src10">
 
     <div class="no-print-bar">
         <div><strong>EN3160 Assignment 1 Executable Interactive Laboratory Report</strong></div>
@@ -687,5 +687,229 @@
 
     </div>
 
+    <script>
+        (() => {
+            const byId = id => document.getElementById(id);
+            const clamp = value => Math.max(0, Math.min(255, Math.round(value)));
+            const numberValue = (id, fallback) => {
+                const value = parseFloat(byId(id)?.value);
+                return Number.isFinite(value) ? value : fallback;
+            };
+            const call = (name, ...args) => {
+                if (typeof window[name] === 'function') window[name](...args);
+            };
+            const sourceData = img => {
+                if (!img || !img.complete || !img.naturalWidth) return null;
+                const scratch = document.createElement('canvas');
+                scratch.width = img.naturalWidth;
+                scratch.height = img.naturalHeight;
+                const ctx = scratch.getContext('2d', { willReadFrequently: true });
+                ctx.drawImage(img, 0, 0);
+                try {
+                    return ctx.getImageData(0, 0, scratch.width, scratch.height);
+                } catch {
+                    return null;
+                }
+            };
+            const fallbackDraw = (canvasId, img, filter) => {
+                const canvas = byId(canvasId);
+                if (!canvas || !img || !img.naturalWidth) return;
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.filter = filter;
+                ctx.drawImage(img, 0, 0);
+                ctx.filter = 'none';
+            };
+            const hsv = (r, g, b) => {
+                r /= 255; g /= 255; b /= 255;
+                const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+                let h = 0;
+                if (d) {
+                    if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+                    else if (max === g) h = ((b - r) / d + 2) / 6;
+                    else h = ((r - g) / d + 4) / 6;
+                }
+                return [h, max ? d / max : 0, max];
+            };
+            const rgb = (h, s, v) => {
+                const i = Math.floor(h * 6), f = h * 6 - i;
+                const p = v * (1 - s), q = v * (1 - f * s), t = v * (1 - (1 - f) * s);
+                const map = [[v, t, p], [q, v, p], [p, v, t], [p, q, v], [t, p, v], [v, p, q]][i % 6];
+                return map.map(vv => clamp(vv * 255));
+            };
+            const write = (canvasId, data) => {
+                const canvas = byId(canvasId);
+                if (!canvas || !data) return;
+                canvas.width = data.width;
+                canvas.height = data.height;
+                canvas.getContext('2d').putImageData(data, 0, 0);
+            };
+
+            const process = {
+                q1: () => {
+                    call('updateQ1Plot');
+                    const srcPath = byId('q1ImgSelect')?.value || '';
+                    const img = byId(srcPath.includes('im02') ? 'img_q1_src2' : 'img_q1_src1');
+                    const data = sourceData(img);
+                    if (!data) {
+                        const x1 = numberValue('q1_p1x', 50), y1 = numberValue('q1_p1y', 20);
+                        const x2 = numberValue('q1_p2x', 150), y2 = numberValue('q1_p2y', 220);
+                        const contrast = Math.max(0.5, Math.min(2.8, Math.abs((y2 - y1) / Math.max(1, x2 - x1))));
+                        fallbackDraw('q1ImgCanvas', img, `contrast(${contrast}) brightness(${0.75 + y2 / 510})`);
+                        return;
+                    }
+                    const x1 = numberValue('q1_p1x', 50), y1 = numberValue('q1_p1y', 20);
+                    const x2 = numberValue('q1_p2x', 150), y2 = numberValue('q1_p2y', 220);
+                    const lut = new Uint8Array(256);
+                    for (let i = 0; i < 256; i++) {
+                        if (i < x1) lut[i] = clamp(x1 ? (i / x1) * y1 : y1);
+                        else if (i < x2) lut[i] = clamp(x2 === x1 ? y1 : y1 + ((i - x1) / (x2 - x1)) * (y2 - y1));
+                        else lut[i] = clamp(x2 === 255 ? y2 : y2 + ((i - x2) / (255 - x2)) * (255 - y2));
+                    }
+                    const out = new ImageData(data.width, data.height);
+                    for (let i = 0; i < data.data.length; i += 4) {
+                        out.data[i] = lut[data.data[i]];
+                        out.data[i + 1] = lut[data.data[i + 1]];
+                        out.data[i + 2] = lut[data.data[i + 2]];
+                        out.data[i + 3] = data.data[i + 3];
+                    }
+                    write('q1ImgCanvas', out);
+                },
+                q3: () => {
+                    const gamma = numberValue('q3GammaSlider', 0.6);
+                    if (byId('q3GammaVal')) byId('q3GammaVal').textContent = gamma.toFixed(2);
+                    call('updateQ3Plot', gamma);
+                    const img = byId('img_q3_src'), data = sourceData(img);
+                    if (!data) return fallbackDraw('q3ImgCanvas', img, `brightness(${1.6 - gamma / 3}) contrast(${1.1 + Math.abs(1 - gamma) / 2})`);
+                    const out = new ImageData(data.width, data.height);
+                    for (let i = 0; i < data.data.length; i += 4) {
+                        const r = data.data[i], g = data.data[i + 1], b = data.data[i + 2];
+                        const l = 0.299 * r + 0.587 * g + 0.114 * b;
+                        const corrected = 255 * Math.pow(l / 255, gamma);
+                        const ratio = l ? corrected / l : 0;
+                        out.data[i] = clamp(r * ratio);
+                        out.data[i + 1] = clamp(g * ratio);
+                        out.data[i + 2] = clamp(b * ratio);
+                        out.data[i + 3] = data.data[i + 3];
+                    }
+                    write('q3ImgCanvas', out);
+                },
+                q4: () => {
+                    const boost = numberValue('q4ASlider', 0.6);
+                    if (byId('q4AVal')) byId('q4AVal').textContent = boost.toFixed(2);
+                    call('updateQ4Plot', boost);
+                    const img = byId('img_q4_src'), data = sourceData(img);
+                    if (!data) return fallbackDraw('q4ImgCanvas', img, `saturate(${1 + boost * 2.2})`);
+                    const out = new ImageData(data.width, data.height);
+                    for (let i = 0; i < data.data.length; i += 4) {
+                        const [h, s, v] = hsv(data.data[i], data.data[i + 1], data.data[i + 2]);
+                        const s255 = s * 255;
+                        const gauss = Math.exp(-Math.pow(s255 - 128, 2) / (2 * 70 * 70));
+                        const [r, g, b] = rgb(h, Math.min(1, (s255 + boost * 128 * gauss) / 255), v);
+                        out.data[i] = r; out.data[i + 1] = g; out.data[i + 2] = b; out.data[i + 3] = data.data[i + 3];
+                    }
+                    write('q4ImgCanvas', out);
+                },
+                q5: () => {
+                    if (byId('q5ThreshVal')) byId('q5ThreshVal').textContent = byId('q5ThreshSlider')?.value || '40';
+                    const mode = byId('q5ModeSelect')?.value || 'custom';
+                    const threshold = parseInt(byId('q5ThreshSlider')?.value || '40', 10);
+                    const img = byId('img_q5_src'), data = sourceData(img);
+                    if (!data) return fallbackDraw('q5ImgCanvas', img, mode === 'orig' ? 'none' : `contrast(${1.25 + threshold / 180}) saturate(${mode === 'selective' ? 1.5 : 1.05})`);
+                    const hist = new Int32Array(256), out = new ImageData(data.width, data.height);
+                    let total = 0;
+                    for (let i = 0; i < data.data.length; i += 4) {
+                        const gray = clamp(0.299 * data.data[i] + 0.587 * data.data[i + 1] + 0.114 * data.data[i + 2]);
+                        const s = hsv(data.data[i], data.data[i + 1], data.data[i + 2])[1] * 255;
+                        if (mode !== 'selective' || s >= threshold) { hist[gray]++; total++; }
+                    }
+                    const lut = new Uint8Array(256);
+                    let cdf = 0;
+                    for (let i = 0; i < 256; i++) { cdf += hist[i]; lut[i] = total ? clamp((cdf / total) * 255) : i; }
+                    for (let i = 0; i < data.data.length; i += 4) {
+                        const r = data.data[i], g = data.data[i + 1], b = data.data[i + 2];
+                        const gray = clamp(0.299 * r + 0.587 * g + 0.114 * b);
+                        const apply = mode !== 'orig' && (mode !== 'selective' || hsv(r, g, b)[1] * 255 >= threshold);
+                        const ratio = apply && gray ? lut[gray] / gray : 1;
+                        out.data[i] = clamp(r * ratio); out.data[i + 1] = clamp(g * ratio); out.data[i + 2] = clamp(b * ratio); out.data[i + 3] = data.data[i + 3];
+                    }
+                    write('q5ImgCanvas', out);
+                },
+                q7: () => {
+                    call('updateQ7Flops');
+                    call('processQ7Canvas');
+                },
+                q8: () => {
+                    const factor = numberValue('q8FactorSlider', 4.0);
+                    if (byId('q8FactorVal')) byId('q8FactorVal').textContent = factor.toFixed(1) + 'x';
+                    call('processQ8Canvas', factor);
+                },
+                q9: () => {
+                    const kernel = parseInt(byId('q9BlurSlider')?.value || '15', 10);
+                    if (byId('q9BlurVal')) byId('q9BlurVal').textContent = kernel + ' x ' + kernel;
+                    call('processQ9Canvas', kernel);
+                },
+                q10: () => {
+                    const sigmaS = numberValue('q10SigS', 15.0), sigmaR = numberValue('q10SigR', 40.0);
+                    if (byId('q10SigSVal')) byId('q10SigSVal').textContent = sigmaS.toFixed(1);
+                    if (byId('q10SigRVal')) byId('q10SigRVal').textContent = sigmaR.toFixed(1);
+                    call('updateQ10Plot', sigmaR);
+                    call('processQ10Canvas', sigmaS, sigmaR);
+                    const img = byId('img_q10_src'), canvas = byId('q10ImgCanvas');
+                    if (!sourceData(img) && canvas) fallbackDraw('q10ImgCanvas', img, `blur(${Math.min(4, sigmaS / 8)}px) contrast(${1 + Math.max(0, 55 - sigmaR) / 100})`);
+                }
+            };
+
+            const bind = (ids, update) => {
+                ids.forEach(id => {
+                    const el = byId(id);
+                    if (!el) return;
+                    const delayed = () => setTimeout(update, 0);
+                    el.addEventListener('input', delayed);
+                    el.addEventListener('change', delayed);
+                    el.addEventListener('click', delayed);
+                });
+            };
+            const redrawAll = () => Object.values(process).forEach(update => update());
+
+            document.addEventListener('DOMContentLoaded', () => {
+                [
+                    ['q10SigS', { type: 'range', min: '1', max: '40', step: '1' }],
+                    ['q10SigR', { type: 'range', min: '5', max: '120', step: '5' }]
+                ].forEach(([id, attrs]) => {
+                    const el = byId(id);
+                    if (!el) return;
+                    Object.entries(attrs).forEach(([key, value]) => el.setAttribute(key, value));
+                });
+
+                bind(['q1ImgSelect', 'q1_p1x', 'q1_p1y', 'q1_p2x', 'q1_p2y', 'btnQ1Contrast', 'btnQ2WM', 'btnQ2GM'], process.q1);
+                bind(['q3GammaSlider'], process.q3);
+                bind(['q4ASlider'], process.q4);
+                bind(['q5ModeSelect', 'q5ThreshSlider'], process.q5);
+                bind(['q7ModeSelect', 'q7SizeSelect'], process.q7);
+                bind(['q8FactorSlider', 'q8MethodSelect'], process.q8);
+                bind(['q9BlurSlider'], process.q9);
+                bind(['q10SigS', 'q10SigR'], process.q10);
+
+                [
+                    ['img_q1_src1', process.q1], ['img_q1_src2', process.q1],
+                    ['img_q3_src', process.q3], ['img_q4_src', process.q4],
+                    ['img_q5_src', process.q5], ['img_q7_src', process.q7],
+                    ['img_q8_src', process.q8], ['img_q9_src', process.q9],
+                    ['img_q10_src', process.q10]
+                ].forEach(([id, update]) => {
+                    const img = byId(id);
+                    if (!img) return;
+                    img.addEventListener('load', update);
+                    if (img.complete && img.naturalWidth) update();
+                });
+
+                setTimeout(redrawAll, 150);
+            });
+
+            window.addEventListener('load', redrawAll);
+        })();
+    </script>
 </body>
 </html>
