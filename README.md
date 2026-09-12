@@ -1,301 +1,106 @@
-# Ghost / Invisibility Mode
+# Computer Vision & Machine Vision Repository
 
-A real-time computer vision application that creates an invisibility effect using **Python**, **OpenCV**, and **MediaPipe**. The project performs real-time human segmentation and replaces the detected person with a previously captured background, creating the illusion of becoming invisible.
-
----
-
-# Features
-
-* Real-time invisibility effect
-* Background calibration
-* MediaPipe Selfie Segmentation
-* Hand gesture controls
-* Live webcam processing
-* Screenshot capture
-* Background recalibration
-* Multi-camera support
-* Lightweight and easy to run
+Welcome to the **Machine Vision** repository. This workspace brings together coursework for **EN3160: Image Processing and Machine Vision**, paper review & implementation of state-of-the-art vision models, real-time gesture control computer vision applications, and academic tutorials.
 
 ---
 
-# How It Works
+## 📁 Repository Overview
 
-The application begins by capturing a clean background frame during initialization.
-
-Using **MediaPipe Selfie Segmentation**, the system detects the user's body in every video frame. When invisibility mode is activated, the segmented foreground is replaced with the stored background frame, making the person appear invisible.
-
-Hand gesture recognition runs simultaneously using **MediaPipe Hands**.
-
-Supported gestures:
-
-* Spread both hands apart to display the interaction area.
-* Pinch the thumb and index finger together on either hand to toggle invisibility.
-* Pinch again to return to normal.
-
----
-
-# Requirements
-
-* Python **3.10**, **3.11**, or **3.12**
-* Webcam
-* Windows, Linux, or macOS
-
-> **Recommended:** Python 3.10 for the best compatibility.
-
----
-
-# Installation
-
-
-
-Move into the project directory:
-
-```bash
-cd Invisibility-Computer-Vision
-```
-
-Install the required packages:
-
-```bash
-pip install opencv-python numpy mediapipe
-```
-
-or
-
-```bash
-pip install -r requirements.txt
+```text
+Machine Vision/
+├── Assignment/               # EN3160 Assignment 1 (Notebooks, Slides, Specifications, Images)
+├── Gesture Control/          # Real-Time Invisibility & Gesture Control Application (main.py, engine.py)
+├── Paper presentation/       # WACV 2025 Paper Review & PyTorch Code Implementation (StrDA)
+├── Tutorials/                # Course tutorial sheets & study materials
+├── Pipfile                   # Pipenv dependency configuration
+└── LICENSE.txt               # Repository license
 ```
 
 ---
 
-# Running the Project
+## 🖐️ 1. Real-Time Application: Gesture Control & Invisibility Mode (`Gesture Control/`)
 
-Run using the default webcam:
+A real-time computer vision application using **OpenCV** and **MediaPipe** that creates an invisibility illusion by replacing detected foreground human pixels with a calibrated background model.
 
+### Key Features:
+- **MediaPipe Selfie Segmentation**: Real-time person masking.
+- **Hand Gesture Controls**:
+  - **Show Interaction Box**: Spread both hands apart to display active bounds.
+  - **Toggle Invisibility**: Pinch thumb and index finger together on either hand to vanish/reappear.
+- **Automatic Setup & Hardware Acceleration**: Auto-installs required packages (`opencv-python`, `numpy`, `mediapipe`) and detects CUDA GPU acceleration if available.
+
+### How to Run:
 ```bash
+cd "Gesture Control"
 python main.py
 ```
+*(Press `R` to recalibrate background, `S` for screenshot, `Q` or `ESC` to exit)*
 
-Use another camera:
+---
 
+## 🎓 2. EN3160 Assignment 1: Intensity Transformations & Filtering (`Assignment/`)
+
+Contains starter templates, task breakdowns, interactive HTML presentation decks, and image datasets for **EN3160 Assignment 1**.
+
+### Covered Topics (Q1 – Q10):
+- **Q1: Piecewise Linear Transformation**: Custom intensity mapping function with lookup tables.
+- **Q2: Tissue Accentuation**: Contrast adjustment to highlight White and Gray Matter in MRI brain slices.
+- **Q3: Gamma Correction in $L^*a^*b^*$**: Color space transformation and luminance channel power-law adjustments.
+- **Q4: Vibrance Enhancement**: Non-linear saturation scaling on the $S$ channel in HSV space.
+- **Q5: Custom Histogram Equalization**: Manual histogram calculation and CDF mapping without OpenCV helper functions.
+- **Q6: Selective Foreground Equalization**: HSV thresholding mask extraction and selective histogram equalization.
+- **Q7: Sobel Edge Filtering**: 2D spatial convolution and separable 1D horizontal/vertical filtering kernels.
+- **Q8: Image Zooming & Interpolation**: Nearest-Neighbor vs Bilinear interpolation evaluated with Normalized SSD.
+- **Q9: GrabCut & Background Blurring**: Foreground segmentation via `cv.grabCut` combined with background Gaussian blurring.
+- **Q10: Edge-Preserving Bilateral Filtering**: Comparative analysis of Gaussian blur, OpenCV bilateral filter, and custom bilateral filter implementation.
+
+### Quick Start:
 ```bash
-python main.py 1
+cd Assignment
+jupyter notebook EN3160_Assignment_01_Template.ipynb
 ```
 
 ---
 
-# Controls
+## 📄 3. Paper Review & Code Implementation (`Paper presentation/`)
 
-| Key     | Function               |
-| ------- | ---------------------- |
-| **R**   | Recalibrate background |
-| **S**   | Save screenshot        |
-| **Q**   | Quit                   |
-| **ESC** | Quit                   |
+Contains the paper review, presentation slides, and PyTorch implementation for the WACV 2025 paper:
+> **"Stratified Domain Adaptation: A Progressive Self-Training Approach for Scene Text Recognition"** (StrDA)
 
----
-
-# Gesture Controls
-
-### Calibration
-
-Remain still for approximately **3 seconds** while the application captures the background.
-
-### Show Interaction Box
-
-Spread both hands apart until a yellow rectangle appears.
-
-### Become Invisible
-
-Pinch your thumb and index finger together on either hand.
-
-### Become Visible Again
-
-Repeat the pinch gesture.
+### Module Breakdown:
+- **Paper Specification**: `Le_Stratified_Domain_Adaptation_..._paper.pdf`
+- **Presentation Deck**: `StrDA_Canva_Style_Presentation.pptx`
+- **Codebase (`Paper presentation/Paper code implimentation/`)**:
+  - `stage1_DD.py`: Stage 1 Domain Discrepancy alignment.
+  - `stage1_HDGE.py`: Stage 1 Hierarchical Domain Guided Feature Enhancement.
+  - `stage2_StrDA.py`: Stage 2 Stratified Domain Adaptation self-training pipeline.
+  - `supervised_learning.py`: Baseline supervised training script.
+  - `test.py`: Benchmark evaluation module.
+  - `download_dataset.py`: Synthetic and real scene text recognition dataset preparation.
 
 ---
 
-# Project Structure
+## 📚 4. Tutorials (`Tutorials/`)
 
-```
-Invisibility-Computer-Vision/
-│
-├── main.py
-├── engine.py
-├── utils.py
-├── requirements.txt
-├── README.md
-└── assets/
-```
+Contains problem sets and reference sheets for machine vision concepts:
+- `en3160_tutorial_t1.pdf`: Fundamental image processing, intensity transformations, and spatial filtering problems.
 
 ---
 
-# Technologies Used
+## 🛠️ Environment & Dependencies
 
-* Python
-* OpenCV
-* MediaPipe
-* NumPy
+Requirements vary by submodule:
+- **Gesture Control**: Python 3.10 – 3.12 (`opencv-python`, `numpy`, `mediapipe`)
+- **Assignment**: Python 3.8+ (`numpy`, `opencv-python`, `matplotlib`, `scipy`, `jupyter`)
+- **Paper Implementation**: Python 3.8+, PyTorch, Torchvision, LMDB, Pillow
 
----
-
-# Troubleshooting
-
-## Error
-
-```
-AttributeError: module 'mediapipe' has no attribute 'solutions'
-```
-
-This usually indicates one of the following:
-
-* An incompatible MediaPipe installation.
-* A corrupted MediaPipe installation.
-* A file named `mediapipe.py` or folder named `mediapipe` exists inside the project.
-* An unsupported Python version is being used.
-
----
-
-## Step 1 – Check MediaPipe Version
-
-Run:
-
+Setup using Pipenv:
 ```bash
-py -m pip show mediapipe
-```
-
-Compatible versions include:
-
-```
-0.10.5
-0.10.7
-0.10.9
-0.10.11
-0.10.14
-0.10.21
+pipenv install
 ```
 
 ---
 
-## Step 2 – Reinstall MediaPipe
+## 📜 License
 
-Remove the existing installation:
-
-```bash
-py -m pip uninstall mediapipe
-```
-
-Install a compatible version:
-
-```bash
-py -m pip install mediapipe==0.10.21
-```
-
----
-
-## Step 3 – Verify Installation
-
-Run Python:
-
-```bash
-py
-```
-
-Execute:
-
-```python
-import mediapipe as mp
-
-print(mp.__version__)
-print(hasattr(mp, "solutions"))
-```
-
-Expected output:
-
-```
-0.10.21
-True
-```
-
----
-
-## Step 4 – Check for Naming Conflicts
-
-Ensure your project does **not** contain:
-
-```
-mediapipe.py
-```
-
-or
-
-```
-mediapipe/
-```
-
-Rename or remove them if present.
-
----
-
-## Step 5 – Check Python Version
-
-Run:
-
-```bash
-py --version
-```
-
-For best compatibility, use:
-
-```
-Python 3.10
-Python 3.11
-Python 3.12
-```
-
-If using Python 3.14 or later and compatibility issues occur, install Python 3.10–3.12 and reinstall the project dependencies.
-
----
-
-# Screenshots
-
-Add screenshots or GIF demonstrations here.
-
-Example:
-
-```
-screenshots/
-├── calibration.png
-├── invisible-mode.png
-└── gesture-control.gif
-```
-
----
-
-# Future Improvements
-
-* Multiple invisibility modes
-* Background blur mode
-* Green screen replacement
-* Virtual backgrounds
-* Object invisibility
-* Performance optimization using GPU acceleration
-* Gesture customization
-
----
-
-# Contributing
-
-Contributions are welcome.
-
-1. Fork the repository.
-2. Create a new feature branch.
-3. Commit your changes.
-4. Push the branch.
-5. Open a Pull Request.
-
----
-
-License
-
-This project is licensed under the MIT License.
+This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details.
