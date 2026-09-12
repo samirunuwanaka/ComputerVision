@@ -1,5 +1,5 @@
 \documentclass[12pt,a4paper]{article}
-\usepackage[margin=22mm]{geometry}
+\usepackage[margin=25mm]{geometry}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
@@ -17,14 +17,13 @@
 \usepackage{xcolor}
 
 \graphicspath{{Figures/}{images/}}
-\hypersetup{colorlinks=true,linkcolor=blue,urlcolor=blue,citecolor=blue}
+\hypersetup{colorlinks=true,linkcolor=black,urlcolor=blue}
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{EN3160 -- Image Processing \& Machine Vision}
-\fancyhead[R]{Assignment 01 Report}
+\lhead{EN3160 -- Image Processing \\ and Machine Vision}
+\fancyhead[R]{Intensity Transformations \& \\ Neighborhood Filtering}
 \cfoot{\thepage}
 \setlength{\headheight}{15pt}
-
 \titleformat{\section}{\Large\bfseries}{\thesection}{0.7em}{}
 \titleformat{\subsection}{\large\bfseries}{\thesubsection}{0.7em}{}
 
@@ -56,561 +55,367 @@
 
 \begin{document}
 
-% ---------------------------------------------------------
-% TITLE PAGE
-% ---------------------------------------------------------
 \begin{titlepage}
   \centering
-  \vspace*{5mm}
-  \includegraphics[width=4.0cm]{campus_logo.png}\par\vspace{5mm}
+  \vspace*{7mm}
+  \includegraphics[width=4.2cm]{campus_logo.png}\par\vspace{7mm}
   {\Large\bfseries Department of Electronic and Telecommunication Engineering\par}
   \vspace{2mm}{\large University of Moratuwa\par}
-  \vspace{15mm}{\large B.Sc. Engineering -- Semester 5\par}
-  \vspace{4mm}{\Large\bfseries EN3160 -- Image Processing and Machine Vision\par}
-  \vspace{12mm}{\Huge\bfseries Intensity Transformations \& Neighborhood Filtering\par} 
-  \vspace{4mm}{\large Technical Laboratory Report -- Assignment 01\par}
+  \vspace{18mm}{\large B.Sc. Engineering -- Semester 5\par}
+  \vspace{5mm}{\Large\bfseries EN3160 -- Image Processing and Machine Vision\par}
+  \vspace{15mm}{\Huge\bfseries Intensity Transformations \& Neighborhood Filtering\par} 
   \vfill
   \renewcommand{\arraystretch}{1.35}
   \begin{tabular}{rl}
-    \textbf{Course:} & EN3160 Image Processing and Machine Vision \\
-    \textbf{Group Number:} & 6 \\
-    \textbf{Student Name:} & Nuwanaka W. A. S. \\
-    \textbf{Index Number:} & 230449N \\
-    \textbf{Date:} & September 2026 \\
+    \textbf{Laboratory:} & Analog Lab \\
+    \textbf{Group number:} & 6 \\
+    \textbf{Members:} 
+                    & 230449N -- Nuwanaka W. A. S. \\
   \end{tabular}
   \vfill
   {\large \today\par}
 \end{titlepage}
 
-\newpage
 \tableofcontents
 \newpage
 
 % ---------------------------------------------------------
-% SECTION 1: QUESTION 1
+% QUESTION 1
 % ---------------------------------------------------------
-\section{Piecewise Linear Intensity Transformation}
+\section{Question 1: Piecewise Linear Intensity Transformation}
 
-\subsection{Problem Statement \& Methodology}
-Piecewise linear intensity transformations are spatial domain enhancement methods used to manipulate pixel contrast across targeted intensity intervals. A piecewise transformation maps input pixel intensity $r \in [0, 255]$ to output intensity $s \in [0, 255]$ via a sequence of connected linear segments specified by breakpoints:
+\subsection{Task Description}
+Implement a piecewise linear intensity transformation function \texttt{intensity\_transform(im, breakpoints)} where \texttt{breakpoints} defines a mapping from input intensities $x$ to output intensities $y$, e.g.,
 \begin{equation}
-\text{breakpoints} = \begin{bmatrix} (r_0, s_0) \\ (r_1, s_1) \\ \vdots \\ (r_n, s_n) \end{bmatrix}
+\text{breakpoints} = \begin{bmatrix}
+0 & 0 \\
+50 & 50 \\
+100 & 150 \\
+150 & 255 \\
+255 & 255
+\end{bmatrix}
 \end{equation}
 
-To maximize computational efficiency, a Look-Up Table (LUT) of length 256 is pre-computed using 1D piecewise linear interpolation (\texttt{np.interp}). Input intensities are mapped directly through OpenCV's \texttt{cv.LUT()} function in $O(1)$ time per pixel.
+\subsection{Requirements}
+\begin{enumerate}
+    \item Implement \texttt{intensity\_transform(im, breakpoints)} using lookup tables (LUT) or piecewise linear interpolation (\texttt{np.interp}).
+    \item Load target image \texttt{im01.png} (or \texttt{im01small.png}).
+    \item Experiment with different breakpoints to achieve contrast enhancement.
+    \item Display the transformation curve plot alongside the original and transformed images side-by-side.
+\end{enumerate}
 
-\subsection{Python Code Implementation}
-\begin{lstlisting}[language=Python, caption={Piecewise Linear Intensity Transformation Implementation}]
+\subsection{Implementation Code Stub}
+\begin{lstlisting}[language=Python, caption={Piecewise Linear Intensity Transformation Stub}]
 import cv2 as cv
 import numpy as np
 
 def intensity_transform(im: np.ndarray, breakpoints: np.ndarray) -> np.ndarray:
     """
-    Applies piecewise linear intensity transformation using LUT mapping.
+    Applies piecewise linear intensity transformation to an input image.
     
     Parameters:
-        im (np.ndarray): Grayscale or color input image
+        im (np.ndarray): Input image (grayscale or color)
         breakpoints (np.ndarray): Nx2 matrix of [input_intensity, output_intensity]
         
     Returns:
-        np.ndarray: Transformed uint8 image
+        np.ndarray: Transformed image of same shape and uint8 dtype
     """
-    x = breakpoints[:, 0]
-    y = breakpoints[:, 1]
-    # Generate 256-element Look-Up Table (LUT)
-    lut = np.interp(np.arange(256), x, y).astype(np.uint8)
-    # Apply vector LUT transformation
-    return cv.LUT(im, lut)
+    # TODO: Extract x and y coordinates from breakpoints
+    # TODO: Create Look-Up Table (LUT) for intensity mapping [0..255]
+    # TODO: Apply cv.LUT or np.interp to transform image intensities
+    pass
 \end{lstlisting}
 
-\subsection{Experimental Results}
-The algorithm was tested on \texttt{im01.png} with contrast enhancement breakpoints $[(0,0), (50, 20), (150, 220), (255, 255)]$. Figure~\ref{fig:q1_result} illustrates the transformation function along with the original and contrast-enhanced outputs.
+\subsection{Discussion \& Observations}
+\textit{Discuss how changing breakpoints alters image contrast, highlights, and shadow retention...}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{q1_transform.png}
-    \caption{Question 1: Piecewise linear transformation curve $T(r)$ and contrast enhancement comparison on \texttt{im01.png}.}
-    \label{fig:q1_result}
-\end{figure}
-
-\subsection{Discussion \& Analysis}
-By setting the slope $\frac{s_{k+1}-s_k}{r_{k+1}-r_k} > 1$ in mid-range intensities ($50 \le r \le 150$), dark-gray and light-gray features are expanded across a wider dynamic range ($20 \le s \le 220$). Slopes less than 1 in the deep shadows ($r < 50$) compress background noise while preserving black levels.
-
----
+\newpage
 
 % ---------------------------------------------------------
-% SECTION 2: QUESTION 2
+% QUESTION 2
 % ---------------------------------------------------------
-\section{Tissue Accentuation in Brain Proton Density MRI}
+\section{Question 2: Tissue Accentuation in Brain Proton Density Image}
 
-\subsection{Problem Statement \& Methodology}
-Medical image diagnosis requires accentuating specific tissue types within magnetic resonance imaging (MRI) slices. In brain proton density (PD) slices (\texttt{im02.png}), different tissue structures exhibit characteristic grayscale intensity bands:
+\subsection{Task Description}
+Apply piecewise linear intensity transformations on the brain proton density slice (\texttt{im02.png} / \texttt{im02small.png}) to selectively accentuate:
 \begin{itemize}
-    \item \textbf{Gray Matter (GM):} Mid-intensity range ($\approx 75 - 135$)
-    \item \textbf{White Matter (WM):} High-intensity range ($\approx 140 - 210$)
+    \item \textbf{(a)} White matter
+    \item \textbf{(b)} Gray matter
 \end{itemize}
 
-By constructing bandpass-shaped piecewise linear curves, target tissue ranges are highlighted to full dynamic intensity ($255$) while non-target tissue background is suppressed.
+\subsection{Requirements}
+\begin{enumerate}
+    \item Analyze histogram of the brain proton density slice to identify intensity ranges corresponding to white matter and gray matter.
+    \item Design custom breakpoint curves for (a) White Matter accentuation and (b) Gray Matter accentuation.
+    \item Plot transformation curves and display the original vs accentuated images.
+\end{enumerate}
 
-\subsection{Python Code Implementation}
-\begin{lstlisting}[language=Python, caption={Brain Tissue Accentuation Implementation}]
-# Load brain proton density slice
-im2 = cv.imread('images/im02.png', cv.IMREAD_GRAYSCALE)
-
-# Breakpoint arrays for White Matter and Gray Matter
-pts_wm = np.array([[0, 0], [120, 10], [140, 240], [210, 255], [230, 40], [255, 0]])
-pts_gm = np.array([[0, 0], [75, 10], [90, 240], [135, 255], [150, 20], [255, 0]])
-
-# Apply piecewise transformations
-im2_wm = intensity_transform(im2, pts_wm)
-im2_gm = intensity_transform(im2, pts_gm)
+\subsection{Implementation Code Stub}
+\begin{lstlisting}[language=Python, caption={Tissue Accentuation Code Stub}]
+# TODO: Load brain proton density slice 'im02.png' or 'im02small.png'
+# TODO: Define breakpoint arrays for white matter and gray matter enhancement
+# TODO: Call intensity_transform() for both cases
+# TODO: Plot transformation curves and display original, white matter, and gray matter images
 \end{lstlisting}
 
-\subsection{Experimental Results}
-Figure~\ref{fig:q2_result} displays the histogram analysis, breakpoint curves, individual tissue segmentations, and a false-color composite representation.
+\subsection{Discussion \& Observations}
+\textit{Discuss intensity range selections for white and gray matter and visual segmentations achieved...}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{q2_brain.png}
-    \caption{Question 2: Selective tissue accentuation of White Matter and Gray Matter on brain PD slice \texttt{im02.png}.}
-    \label{fig:q2_result}
-\end{figure}
-
-\subsection{Discussion \& Analysis}
-Histogram analysis of \texttt{im02.png} reveals distinct bimodal distributions in cerebral tissues. Bandpass intensity transformation successfully isolates anatomical regions without complex spatial segmentation. The color overlay highlights white matter fiber tracts in blue and gray matter cortical structures in green.
-
----
+\newpage
 
 % ---------------------------------------------------------
-% SECTION 3: QUESTION 3
+% QUESTION 3
 % ---------------------------------------------------------
-\section{Gamma Correction in \texorpdfstring{$L^*a^*b^*$}{L*a*b*} Color Space}
+\section{Question 3: Gamma Correction in \texorpdfstring{$L^*a^*b^*$}{L*a*b*} Color Space}
 
-\subsection{Problem Statement \& Methodology}
-Direct power-law (gamma) correction on RGB color channels distorts hue and color saturation because R, G, and B components are non-linearly coupled. To alter luminance without color drift, the image is converted to CIE $L^*a^*b^*$ color space, where $L^*$ represents perceptual lightness ($[0, 255]$), and $a^*, b^*$ encode chromaticity.
+\subsection{Task Description}
+Consider the image shown in Fig. 3 (\texttt{im03.png} / \texttt{im03small.png}).
+\begin{enumerate}
+    \item \textbf{(a)} Convert image to $L^*a^*b^*$ color space and apply gamma correction to the $L^*$ plane. State chosen $\gamma$ value.
+    \item \textbf{(b)} Display original vs gamma-corrected image, along with histograms of the $L^*$ plane before and after correction.
+\end{enumerate}
 
-Gamma correction is applied exclusively to the $L^*$ plane:
+\subsection{Mathematical Formulation}
 \begin{equation}
 L_{\text{out}} = 255 \times \left(\frac{L_{\text{in}}}{255}\right)^\gamma
 \end{equation}
-Setting $\gamma < 1.0$ brightens dark underexposed shadows while expanding shadow contrast.
 
-\subsection{Python Code Implementation}
-\begin{lstlisting}[language=Python, caption={Gamma Correction on L* Plane in Lab Space}]
-def gamma_correct_L_plane(im_bgr: np.ndarray, gamma: float):
-    # Convert BGR to CIE L*a*b* space
-    lab = cv.cvtColor(im_bgr, cv.COLOR_BGR2LAB)
-    L, a, b = cv.split(lab)
-    
-    # Power-law transformation on L* channel
-    L_norm = L.astype(np.float32) / 255.0
-    L_corr = np.clip(255.0 * (L_norm ** gamma), 0, 255).astype(np.uint8)
-    
-    # Recombine channels and convert back to BGR
-    lab_corr = cv.merge([L_corr, a, b])
-    bgr_corr = cv.cvtColor(lab_corr, cv.COLOR_LAB2BGR)
-    return bgr_corr, L, L_corr
+\subsection{Implementation Code Stub}
+\begin{lstlisting}[language=Python, caption={Gamma Correction Code Stub}]
+def gamma_correct_L_plane(im_bgr: np.ndarray, gamma: float) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+    Applies gamma correction to the L* plane in L*a*b* color space.
+    """
+    # TODO: Convert BGR to Lab space using cv.cvtColor(im_bgr, cv.COLOR_BGR2LAB)
+    # TODO: Extract L, a, b planes
+    # TODO: Compute normalized power law transform: L_out = 255 * ((L_in / 255) ** gamma)
+    # TODO: Merge L_out, a, b and convert back to BGR space
+    pass
 \end{lstlisting}
 
-\subsection{Experimental Results}
-Using optimal exponent $\gamma = 0.6$ on underexposed image \texttt{im03.png}, shadow details are recovered cleanly. Figure~\ref{fig:q3_result} shows the original vs corrected image and corresponding $L^*$ channel histograms.
+\subsection{Discussion \& Observations}
+\textit{Explain the choice of gamma value, impact on shadows/highlights in Lab space vs RGB space...}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.9\textwidth]{q3_gamma.png}
-    \caption{Question 3: Gamma correction ($\gamma = 0.6$) on $L^*$ channel and luminance histogram shift.}
-    \label{fig:q3_result}
-\end{figure}
-
-\subsection{Discussion \& Analysis}
-Applying $\gamma = 0.6$ on the $L^*$ channel expands low-intensity bins ($L_{\text{in}} < 100$) upwards into visible mid-tones, making dark foliage and shadow structures visible while holding chromatic channels $a^*$ and $b^*$ invariant.
-
----
+\newpage
 
 % ---------------------------------------------------------
-% SECTION 4: QUESTION 4
+% QUESTION 4
 % ---------------------------------------------------------
-\section{Vibrance Enhancement in HSV Color Space}
+\section{Question 4: Vibrance Enhancement in HSV Color Space}
 
-\subsection{Problem Statement \& Methodology}
-Standard global saturation scaling frequently over-saturates vibrant colors, causing clipping artifacts in already rich regions. Vibrance enhancement selectively boosts muted mid-range saturation values using a Gaussian-weighted correction function on the Saturation ($S$) channel in HSV space:
+\subsection{Task Description}
+Enhance photograph vibrance on image \texttt{im04.jpg} (\texttt{im04small.jpg}) by applying the intensity transformation function:
 \begin{equation}
-f(x) = \min\left(x + a \times 128 \times e^{-\frac{(x-128)^2}{2\sigma^2}}, 255\right)
+f(x) = \min\left(x + a \times 128 e^{-\frac{(x-128)^2}{2\sigma^2}}, 255\right)
 \end{equation}
-where $x \in [0, 255]$, $a \in [0, 1]$ controls enhancement amplitude, and $\sigma = 70.0$ governs Gaussian bandwidth centered at mid-saturation $x = 128$.
+to the Saturation ($S$) plane in HSV color space, where $x \in [0, 255]$, $a \in [0, 1]$, and $\sigma = 70$.
 
-\subsection{Python Code Implementation}
-\begin{lstlisting}[language=Python, caption={Vibrance Enhancement on HSV Saturation Plane}]
+\subsection{Requirements}
+\begin{enumerate}
+    \item \textbf{(a)} Split \texttt{im04.jpg} into Hue ($H$), Saturation ($S$), and Value ($V$) planes.
+    \item \textbf{(b)} Apply the vibrance transform formula to the $S$ plane.
+    \item \textbf{(c)} Adjust $a$ for optimal visual results and report chosen $a$.
+    \item \textbf{(d)} Recombine $H, S_{\text{enhanced}}, V$ back into BGR image.
+    \item \textbf{(e)} Display original image, vibrance-enhanced image, and transformation plot $f(x)$ vs $x$.
+\end{enumerate}
+
+\subsection{Implementation Code Stub}
+\begin{lstlisting}[language=Python, caption={Vibrance Enhancement Code Stub}]
 def vibrance_transform(S_plane: np.ndarray, a: float, sigma: float = 70.0) -> np.ndarray:
-    x = S_plane.astype(np.float32)
-    delta = a * 128.0 * np.exp(-((x - 128.0) ** 2) / (2.0 * (sigma ** 2)))
-    f_x = np.clip(x + delta, 0, 255)
-    return f_x.astype(np.uint8)
-
-# Application on HSV image
-im4 = cv.imread('images/im04.jpg')
-hsv = cv.cvtColor(im4, cv.COLOR_BGR2HSV)
-H, S, V = cv.split(hsv)
-S_enh = vibrance_transform(S, a=0.6, sigma=70.0)
-im4_enh = cv.cvtColor(cv.merge([H, S_enh, V]), cv.COLOR_HSV2BGR)
+    """Applies vibrance enhancement function to Saturation channel."""
+    # TODO: Compute transformation f(x) = min(x + a * 128 * exp(-((x-128)^2)/(2 * sigma^2)), 255)
+    # TODO: Cast back to uint8
+    pass
 \end{lstlisting}
 
-\subsection{Experimental Results}
-Figure~\ref{fig:q4_result} illustrates the Gaussian vibrance curve $f(x)$ ($a=0.6, \sigma=70$) and visual comparison on \texttt{im04.jpg}.
+\subsection{Discussion \& Observations}
+\textit{Report the chosen 'a' parameter and explain why Gaussian-weighted saturation boosting avoids clipping vibrant colors...}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{q4_vibrance.png}
-    \caption{Question 4: Gaussian-weighted vibrance curve $f(x)$ and HSV saturation boosting on \texttt{im04.jpg}.}
-    \label{fig:q4_result}
-\end{figure}
-
-\subsection{Discussion \& Analysis}
-Because the Gaussian term approaches 0 at $x=0$ and $x=255$, neutral grays ($S \approx 0$) remain neutral, and highly saturated pixels ($S \approx 255$) avoid harsh color clipping. Peak enhancement occurs smoothly at $x = 128$.
-
----
+\newpage
 
 % ---------------------------------------------------------
-% SECTION 5: QUESTION 5
+% QUESTION 5
 % ---------------------------------------------------------
-\section{Custom Histogram Equalization}
+\section{Question 5: Custom Histogram Equalization}
 
-\subsection{Problem Statement \& Methodology}
-Histogram equalization enhances global image contrast by transforming intensity distribution $r_k$ such that the output cumulative distribution function (CDF) is linearized across $[0, 255]$. The manual discrete formulation consists of:
+\subsection{Task Description}
+Write a custom function from scratch to carry out histogram equalization on \texttt{im05.jpg}.
+
+\subsection{Requirements}
 \begin{enumerate}
-    \item Intensity histogram calculation: $h(r_k) = \sum \delta(I(i,j) - r_k)$
-    \item Probability Density Function (PDF): $p(r_k) = \frac{h(r_k)}{M \times N}$
-    \item Cumulative Distribution Function (CDF): $T(r_k) = \sum_{j=0}^{k} p(r_j)$
-    \item Discrete Intensity Mapping: $s_k = \text{round}\left(255 \times T(r_k)\right)$
+    \item Implement \texttt{custom\_histogram\_equalization(img\_gray)} without using OpenCV's \texttt{cv.equalizeHist}.
+    \item Compute intensity frequency histogram $h(r_k)$.
+    \item Calculate Probability Density Function (PDF) $p(r_k) = h(r_k) / MN$.
+    \item Compute Cumulative Distribution Function (CDF) $T(r_k) = \sum p(r_k)$.
+    \item Map intensity levels $s_k = \text{round}(255 \cdot T(r_k))$.
+    \item Display image before and after equalization alongside their histograms.
 \end{enumerate}
 
-\subsection{Python Code Implementation}
-\begin{lstlisting}[language=Python, caption={Custom Histogram Equalization from Scratch}]
-def custom_histogram_equalization(img_gray: np.ndarray):
-    # Step 1: Compute intensity frequency counts
-    hist, _ = np.histogram(img_gray.ravel(), 256, [0, 256])
-    
-    # Step 2 & 3: Compute Cumulative Distribution Function (CDF)
-    cdf = hist.cumsum()
-    cdf_normalized = cdf / cdf[-1]
-    
-    # Step 4 & 5: Map intensity levels s_k = round(255 * CDF)
-    lut = np.round(255.0 * cdf_normalized).astype(np.uint8)
-    img_eq = lut[img_gray]
-    hist_eq, _ = np.histogram(img_eq.ravel(), 256, [0, 256])
-    return img_eq, hist, hist_eq
+\subsection{Implementation Code Stub}
+\begin{lstlisting}[language=Python, caption={Custom Histogram Equalization Stub}]
+def custom_histogram_equalization(img_gray: np.ndarray) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Computes histogram equalization manually."""
+    # TODO: Calculate intensity counts for values 0 to 255
+    # TODO: Compute normalized CDF
+    # TODO: Scale CDF to [0..255] and round
+    # TODO: Map input image pixels to new intensities
+    pass
 \end{lstlisting}
 
-\subsection{Experimental Results}
-The custom algorithm was validated against \texttt{im05.jpg} and benchmarked against OpenCV's built-in \texttt{cv.equalizeHist()}. Figure~\ref{fig:q5_result} depicts the equalized outputs and histogram distributions.
+\subsection{Discussion \& Observations}
+\textit{Compare your manual histogram equalization output with OpenCV cv.equalizeHist and analyze contrast distribution...}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{q5_histeq.png}
-    \caption{Question 5: Custom histogram equalization vs OpenCV \texttt{cv.equalizeHist()} on \texttt{im05.jpg}.}
-    \label{fig:q5_result}
-\end{figure}
-
-\subsection{Discussion \& Analysis}
-Our custom implementation matches OpenCV's \texttt{cv.equalizeHist()} output identically with zero pixel difference. Dark low-contrast regions are expanded, yielding a flatter, uniform histogram profile across all intensity levels.
-
----
+\newpage
 
 % ---------------------------------------------------------
-% SECTION 6: QUESTION 6
+% QUESTION 6
 % ---------------------------------------------------------
-\section{Selective Foreground Histogram Equalization}
+\section{Question 6: Selective Foreground Histogram Equalization}
 
-\subsection{Problem Statement \& Methodology}
-Global histogram equalization applied to images containing large dark or bright backgrounds often over-amplifies background noise. Selective foreground equalization solves this by:
+\subsection{Task Description}
+Apply histogram equalization \textbf{only to the foreground} of an image (e.g. \texttt{q1.jpeg}).
+
+\subsection{Steps}
 \begin{enumerate}
-    \item Decomposing image into HSV color components ($H, S, V$).
-    \item Generating binary foreground mask $M$ by thresholding high-saturation plane $S$.
-    \item Computing cumulative histogram of foreground pixels only ($V[M > 0]$).
-    \item Equalizing foreground Value intensities while holding background regions constant.
+    \item \textbf{(a)} Split image into $H, S, V$ planes and display each plane in grayscale.
+    \item \textbf{(b)} Select appropriate plane to threshold and extract binary foreground mask $M$.
+    \item \textbf{(c)} Extract foreground using \texttt{cv.bitwise\_and} and compute foreground histogram.
+    \item \textbf{(d)} Compute cumulative sum of histogram using \texttt{np.cumsum}.
+    \item \textbf{(e)} Equalize foreground intensities based on cumulative histogram.
+    \item \textbf{(f)} Recombine background with equalized foreground.
 \end{enumerate}
 
-\subsection{Python Code Implementation}
-\begin{lstlisting}[language=Python, caption={Selective Foreground Equalization Pipeline}]
-im6 = cv.imread('images/q1.jpeg')
-hsv6 = cv.cvtColor(im6, cv.COLOR_BGR2HSV)
-H6, S6, V6 = cv.split(hsv6)
-
-# Threshold S plane to isolate foreground mask
-_, fg_mask = cv.threshold(S6, 40, 255, cv.THRESH_BINARY)
-kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (5, 5))
-fg_mask = cv.morphologyEx(fg_mask, cv.MORPH_CLOSE, kernel)
-
-# Equalize V channel for foreground pixels only
-V_fg = V6[fg_mask > 0]
-fg_hist, _ = np.histogram(V_fg, 256, [0, 256])
-fg_cdf_norm = fg_hist.cumsum() / fg_hist.cumsum()[-1]
-fg_lut = np.round(255.0 * fg_cdf_norm).astype(np.uint8)
-
-V6_seq = V6.copy()
-V6_seq[fg_mask > 0] = fg_lut[V6[fg_mask > 0]]
-im6_seq = cv.cvtColor(cv.merge([H6, S6, V6_seq]), cv.COLOR_HSV2BGR)
+\subsection{Implementation Code Stub}
+\begin{lstlisting}[language=Python, caption={Selective Foreground Equalization Stub}]
+# TODO: Load Fig. 6 image ('q1.jpeg')
+# TODO: Convert to HSV and display H, S, V planes
+# TODO: Threshold selected plane to create binary foreground mask
+# TODO: Apply cv.bitwise_and to extract foreground pixels
+# TODO: Compute cumulative sum of foreground histogram using np.cumsum()
+# TODO: Equalize foreground intensities and recombine with background
 \end{lstlisting}
 
-\subsection{Experimental Results}
-Figure~\ref{fig:q6_result} shows intermediate HSV channels, binary mask $M$, global equalization result, and selective foreground equalized output.
+\subsection{Discussion \& Observations}
+\textit{Discuss plane selection choice for segmentation and compare selective foreground equalization vs global equalization...}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{q6_selective.png}
-    \caption{Question 6: Intermediate HSV planes, foreground mask $M$, and selective vs global equalization on \texttt{q1.jpeg}.}
-    \label{fig:q6_result}
-\end{figure}
-
-\subsection{Discussion \& Analysis}
-Global equalization degrades background quality by over-amplifying low-level noise. In contrast, selective foreground equalization enhances subject detail while maintaining natural background contrast.
-
----
+\newpage
 
 % ---------------------------------------------------------
-% SECTION 7: QUESTION 7
+% QUESTION 7
 % ---------------------------------------------------------
-\section{Sobel Edge Filtering \& Separable Kernel Filtering}
+\section{Question 7: Sobel Filtering \& Separable Filtering}
 
-\subsection{Problem Statement \& Methodology}
-The 2D Sobel gradient operator computes horizontal ($G_x$) and vertical ($G_y$) edge responses using $3 \times 3$ kernels:
-\begin{equation}
-K_x = \begin{bmatrix} -1 & 0 & 1 \\ -2 & 0 & 2 \\ -1 & 0 & 1 \end{bmatrix}, \quad
-K_y = \begin{bmatrix} -1 & -2 & -1 \\ 0 & 0 & 0 \\ 1 & 2 & 1 \end{bmatrix}
-\end{equation}
+\subsection{Task Description}
+Perform Sobel filtering on \texttt{q2.jpeg} (Einstein image) using three distinct methods:
+\begin{enumerate}
+    \item \textbf{(a)} Using OpenCV \texttt{cv.filter2D} with full 2D Sobel kernel.
+    \item \textbf{(b)} Manual implementation of 2D convolution for Sobel filtering.
+    \item \textbf{(c)} Utilizing kernel separability property:
+    \begin{equation}
+    \begin{bmatrix} 1 & 0 & -1 \\ 2 & 0 & -2 \\ 1 & 0 & -1 \end{bmatrix} = \begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix} * \begin{bmatrix} 1 & 0 & -1 \end{bmatrix}
+    \end{equation}
+    Perform sequential 1D horizontal and vertical convolutions.
+\end{enumerate}
 
-By kernel separability, $K_x$ can be factored into column and row 1D vectors:
-\begin{equation}
-K_x = \begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix} * \begin{bmatrix} -1 & 0 & 1 \end{bmatrix} = \mathbf{v} * \mathbf{h}_x
-\end{equation}
-Convolving sequentially with two 1D kernels reduces computational complexity from $O(K_x K_y \cdot MN)$ to $O((K_x + K_y) \cdot MN)$, yielding substantial speedup.
-
-\subsection{Python Code Implementation}
-\begin{lstlisting}[language=Python, caption={Sobel 2D and 1D Separable Implementations}]
+\subsection{Implementation Code Stub}
+\begin{lstlisting}[language=Python, caption={Sobel Filtering Implementations Stub}]
 def sobel_filter2d_cv(im: np.ndarray) -> np.ndarray:
-    Kx = np.array([[-1, 0, 1], [-2, 0, 2], [-1, 0, 1]], dtype=np.float32)
-    Ky = np.array([[-1, -2, -1], [0, 0, 0], [1, 2, 1]], dtype=np.float32)
-    gx = cv.filter2D(im.astype(np.float32), -1, Kx)
-    gy = cv.filter2D(im.astype(np.float32), -1, Ky)
-    return np.clip(np.hypot(gx, gy), 0, 255).astype(np.uint8)
+    """(a) Sobel filtering using cv.filter2D"""
+    pass
+
+def sobel_filter2d_manual(im: np.ndarray) -> np.ndarray:
+    """(b) Sobel filtering using manual 2D convolution loop"""
+    pass
 
 def sobel_filter_separable(im: np.ndarray) -> np.ndarray:
-    v = np.array([[1], [2], [1]], dtype=np.float32)
-    h_x = np.array([[-1, 0, 1]], dtype=np.float32)
-    h_y = np.array([[1, 2, 1]], dtype=np.float32)
-    v_y = np.array([[-1], [0], [1]], dtype=np.float32)
-    im_f = im.astype(np.float32)
-    gx = cv.filter2D(cv.filter2D(im_f, -1, v), -1, h_x)
-    gy = cv.filter2D(cv.filter2D(im_f, -1, h_y), -1, v_y)
-    return np.clip(np.hypot(gx, gy), 0, 255).astype(np.uint8)
+    """(c) Sobel filtering using 1D separable kernel decomposition"""
+    pass
 \end{lstlisting}
 
-\subsection{Experimental Results \& Performance Benchmarking}
-Execution times were measured on \texttt{q2.jpeg} ($512 \times 512$ resolution) as summarized in Table~\ref{tab:sobel_benchmark} and Figure~\ref{fig:q7_result}.
+\subsection{Discussion \& Observations}
+\textit{Compare execution times and accuracy of 2D vs 1D separable filtering...}
 
-\begin{table}[H]
-\centering
-\caption{Computational Benchmark of Sobel Filtering Implementations}
-\label{tab:sobel_benchmark}
-\begin{tabular}{lccc}
-\toprule
-\textbf{Implementation Method} & \textbf{Complexity per Pixel} & \textbf{Execution Time (ms)} & \textbf{Output Difference} \\
-\midrule
-2D OpenCV \texttt{cv.filter2D} & 9 Multiplications & $1.00\,\text{ms}$ & Baseline \\
-2D Matrix Operations & 9 Multiplications & $1.00\,\text{ms}$ & $0.00$ \\
-1D Separable Convolutions & 6 Multiplications & $\mathbf{0.00\,\text{ms}}$ & $0.00$ \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{q7_sobel.png}
-    \caption{Question 7: Sobel magnitude edge maps across 2D OpenCV, 2D Manual, and 1D Separable filtering.}
-    \label{fig:q7_result}
-\end{figure}
-
-\subsection{Discussion \& Analysis}
-Separable 1D kernel decomposition reduces kernel operations from 9 to 6 multiplications per pixel per direction, proving essential for real-time edge extraction on large image frames.
-
----
+\newpage
 
 % ---------------------------------------------------------
-% SECTION 8: QUESTION 8
+% QUESTION 8
 % ---------------------------------------------------------
-\section{Image Zooming: Nearest-Neighbor vs Bilinear Interpolation}
+\section{Question 8: Image Zooming (Nearest-Neighbor \& Bilinear)}
 
-\subsection{Problem Statement \& Methodology}
-Image resizing maps output coordinates $(x', y')$ back to continuous input coordinates $(x, y) = (x'/s, y'/s)$.
-\begin{itemize}
-    \item \textbf{Nearest-Neighbor Interpolation:} Rounds continuous coordinates to nearest integer index $(\lfloor x + 0.5 \rfloor, \lfloor y + 0.5 \rfloor)$.
-    \item \textbf{Bilinear Interpolation:} Computes weighted average over $2 \times 2$ pixel neighborhood using fractional distances $\Delta x, \Delta y$:
-    \begin{equation}
-    I(x,y) = (1-\Delta x)(1-\Delta y) I_{00} + \Delta x (1-\Delta y) I_{10} + (1-\Delta x)\Delta y I_{01} + \Delta x \Delta y I_{11}
-    \end{equation}
-\end{itemize}
+\subsection{Task Description}
+Write a custom program/function \texttt{zoom\_image(im, scale\_factor, method)} to resize images by factor $s \in (0, 10]$.
 
-Algorithm accuracy is evaluated using Normalized Sum of Squared Differences ($\text{SSD}_{\text{norm}}$) relative to ground truth high-resolution image $I_{\text{orig}}$:
-\begin{equation}
-\text{SSD}_{\text{norm}} = \frac{\sum_{i,j} \left(I_{\text{orig}}(i,j) - I_{\text{zoomed}}(i,j)\right)^2}{\sum_{i,j} I_{\text{orig}}(i,j)^2}
-\end{equation}
-
-\subsection{Python Code Implementation}
-\begin{lstlisting}[language=Python, caption={Custom Image Zooming and SSD Metrics}]
-def compute_normalized_ssd(im_orig: np.ndarray, im_zoomed: np.ndarray) -> float:
-    diff = im_orig.astype(np.float64) - im_zoomed.astype(np.float64)
-    return np.sum(diff ** 2) / np.sum(im_orig.astype(np.float64) ** 2)
-\end{lstlisting}
-
-\subsection{Experimental Results}
-Zooming \texttt{im01small.png} by scale factor $s=4.0$ yields quantitative error metrics shown in Table~\ref{tab:zooming_metrics} and visual comparison in Figure~\ref{fig:q8_result}.
-
-\begin{table}[H]
-\centering
-\caption{Quantitative Error Metrics for 4x Upscaling}
-\label{tab:zooming_metrics}
-\begin{tabular}{lcc}
-\toprule
-\textbf{Interpolation Method} & \textbf{Normalized SSD ($\text{SSD}_{\text{norm}}$)} & \textbf{Visual Characteristics} \\
-\midrule
-Nearest-Neighbor & $0.022004$ & Jagged staircase / blocky pixelation \\
-Bilinear Interpolation & $\mathbf{0.009912}$ & Smooth intensity transitions / anti-aliased \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{q8_zooming.png}
-    \caption{Question 8: 4x image zooming comparison and Normalized SSD values on \texttt{im01small.png}.}
-    \label{fig:q8_result}
-\end{figure}
-
-\subsection{Discussion \& Analysis}
-Bilinear interpolation achieves over $2.2 \times$ lower Normalized SSD error ($0.009912$ vs $0.022004$) compared to Nearest-Neighbor. Nearest-neighbor produces prominent blockiness along diagonal edges due to zero-order sample hold.
-
----
-
-% ---------------------------------------------------------
-% SECTION 9: QUESTION 9
-% ---------------------------------------------------------
-\section{GrabCut Foreground Segmentation and Background Blurring}
-
-\subsection{Problem Statement \& Methodology}
-Foreground object extraction is performed using OpenCV's iterative Graph-Cut algorithm (\texttt{cv.grabCut}). An initial bounding box isolates flower foreground. A binary mask $M \in \{0, 1\}$ separates foreground ($M=1$) and background ($M=0$).
-
-Background blurring applies a heavy Gaussian filter kernel ($51 \times 51, \sigma=25$) to the original image $I_{\text{bg\_blur}}$, followed by composite masking:
-\begin{equation}
-I_{\text{composite}} = I \odot M + I_{\text{bg\_blur}} \odot (1 - M)
-\end{equation}
-
-\subsection{Python Code Implementation}
-\begin{lstlisting}[language=Python, caption={GrabCut Segmentation and Background Blurring}]
-im9 = cv.imread('images/im05.jpg')
-H9, W9 = im9.shape[:2]
-mask9 = np.zeros((H9, W9), np.uint8)
-rect9 = (int(W9*0.1), int(H9*0.1), int(W9*0.8), int(H9*0.8))
-
-# Execute GrabCut (5 iterations)
-cv.grabCut(im9, mask9, rect9, np.zeros((1,65), np.float64), np.zeros((1,65), np.float64), 5, cv.GC_INIT_WITH_RECT)
-bin_mask9 = np.where((mask9 == 2) | (mask9 == 0), 0, 1).astype('uint8')
-
-# Blur background and composite sharp foreground
-blurred_bg9 = cv.GaussianBlur(im9, (51, 51), 25)
-composite9 = im9 * bin_mask9[:, :, None] + blurred_bg9 * (1 - bin_mask9[:, :, None])
-\end{lstlisting}
-
-
-\subsection{Experimental Results}
-Figure~\ref{fig:q9_result} displays the binary GrabCut mask, isolated flower foreground, background layer, and final composited portrait output.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{q9_grabcut.png}
-    \caption{Question 9: GrabCut segmentation stages and background blur composition.}
-    \label{fig:q9_result}
-\end{figure}
-
-\subsection{Detailed Answer to Part (c): Halo Artifact Analysis}
-\textbf{Question (c):} \textit{Why is the background area just beyond the edge of the flower quite dark / discolored in the enhanced composite image?}
-
-\textbf{Technical Explanation:} When spatial Gaussian filtering is applied globally across the unsegmented background image $I$, background pixels situated immediately adjacent to foreground flower boundaries absorb weighted contributions from nearby dark/colored foreground flower edge pixels within spatial kernel radius $R$. When the unblurred sharp flower foreground $I \odot M$ is pasted back over this blurred background, dark foreground edge information has already bled outward into the adjacent background region, causing dark halo / color bleeding boundary artifacts.
-
----
-
-% ---------------------------------------------------------
-% SECTION 10: QUESTION 10
-% ---------------------------------------------------------
-\section{Edge-Preserving Bilateral Filtering}
-
-\subsection{Problem Statement \& Methodology}
-Unlike standard Gaussian blurring which smoothes across object boundaries, the Bilateral Filter preserves sharp structural edges by combining a spatial domain Gaussian weight $G_{\sigma_s}$ with a photometric range weight $G_{\sigma_r}$:
-\begin{equation}
-I_{\text{filt}}(p) = \frac{1}{W_p} \sum_{q \in \Omega} I(q) \cdot \exp\left(-\frac{\|p - q\|^2}{2\sigma_s^2}\right) \cdot \exp\left(-\frac{\|I(p) - I(q)\|^2}{2\sigma_r^2}\right)
-\end{equation}
-where normalization factor $W_p = \sum_{q \in \Omega} G_{\sigma_s}(\|p-q\|) \cdot G_{\sigma_r}(\|I(p)-I(q)\|)$.
-
-\subsection{Python Code Implementation}
-\begin{lstlisting}[language=Python, caption={Custom 2D Bilateral Filter Implementation}]
-def custom_bilateral_filter(im: np.ndarray, d: int, sigma_color: float, sigma_space: float) -> np.ndarray:
-    H, W = im.shape[:2]
-    radius = d // 2
-    padded = np.pad(im.astype(np.float32), ((radius, radius), (radius, radius)), mode='edge')
-    
-    # Precompute spatial domain Gaussian weights
-    y, x = np.mgrid[-radius:radius+1, -radius:radius+1]
-    spatial_weights = np.exp(-(x**2 + y**2) / (2.0 * sigma_space**2))
-    
-    output = np.zeros((H, W), dtype=np.float32)
-    for i in range(H):
-        for j in range(W):
-            region = padded[i:i+d, j:j+d]
-            intensity_diff = region - padded[i+radius, j+radius]
-            range_weights = np.exp(-(intensity_diff**2) / (2.0 * sigma_color**2))
-            weights = spatial_weights * range_weights
-            output[i, j] = np.sum(region * weights) / np.sum(weights)
-            
-    return np.clip(output, 0, 255).astype(np.uint8)
-\end{lstlisting}
-
-\subsection{Experimental Results \& Quantitative Metrics}
-Our custom bilateral filter was quantitatively compared against OpenCV's optimized \texttt{cv.bilateralFilter()} ($d=7, \sigma_r=50, \sigma_s=50$) using Peak Signal-to-Noise Ratio (PSNR) and Structural Similarity Index (SSIM), as shown in Table~\ref{tab:bilateral_metrics} and Figure~\ref{fig:q10_result}.
-
-\begin{table}[H]
-\centering
-\caption{Quantitative Similarity Between Custom and OpenCV Bilateral Filters}
-\label{tab:bilateral_metrics}
-\begin{tabular}{lcc}
-\toprule
-\textbf{Metric} & \textbf{Value} & \textbf{Interpretation} \\
-\midrule
-Peak Signal-to-Noise Ratio (PSNR) & $\mathbf{40.99\,\text{dB}}$ & Extremely high fidelity ($>40\,\text{dB}$) \\
-Structural Similarity Index (SSIM) & $\mathbf{0.9854}$ & Near perfect structural equivalence \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{q10_bilateral.png}
-    \caption{Question 10: Comparison of Gaussian blur vs OpenCV bilateral filter and custom bilateral filter.}
-    \label{fig:q10_result}
-\end{figure}
-
-\subsection{Discussion \& Analysis}
-Gaussian filtering blurs sharp facial features and edges indiscriminately. Conversely, the bilateral filter smooths uniform regions while preserving high-contrast edge boundaries. Our custom bilateral implementation matches OpenCV's reference filter with $40.99\,\text{dB}$ PSNR and $0.9854$ SSIM.
-
----
-
-% ---------------------------------------------------------
-% SECTION 11: CONCLUSION
-% ---------------------------------------------------------
-\section{Conclusion \& Summary}
-In this laboratory assignment, fundamental spatial domain intensity transformations and neighborhood filtering techniques were investigated:
+\subsection{Requirements}
 \begin{enumerate}
-    \item \textbf{Intensity Transformations:} Piecewise linear LUT mapping, brain tissue accentuation, $L^*a^*b^*$ gamma correction, and HSV Gaussian vibrance boosting demonstrated precise control over dynamic range and perceptual color balance without color distortion.
-    \item \textbf{Histogram Processing:} Custom histogram equalization linearized luminance distributions, while selective foreground equalization prevented background noise amplification.
-    \item \textbf{Neighborhood Filtering:} 1D separable kernel decomposition of the 2D Sobel filter significantly reduced computational complexity. Custom bilinear zooming achieved lower SSD error ($0.009912$) than nearest-neighbor interpolation, and custom bilateral filtering successfully preserved edge sharp boundaries while suppressing spatial noise ($40.99\,\text{dB}$ PSNR).
+    \item Implement interpolation methods: (a) Nearest-neighbor interpolation, (b) Bilinear interpolation.
+    \item Scale up small images by a factor of 4.
+    \item Compute \textbf{Normalized Sum of Squared Differences (SSD)} by comparing upscaled images against original high-resolution targets:
+    \begin{equation}
+    \text{SSD}_{\text{norm}} = \frac{\sum_{i,j} (I_{\text{orig}}(i,j) - I_{\text{zoomed}}(i,j))^2}{\sum_{i,j} I_{\text{orig}}(i,j)^2}
+    \end{equation}
 \end{enumerate}
+
+\subsection{Implementation Code Stub}
+\begin{lstlisting}[language=Python, caption={Image Zooming Code Stub}]
+def zoom_image(im: np.ndarray, factor: float, method: str = 'bilinear') -> np.ndarray:
+    """Zooms image by given scale factor using custom interpolation."""
+    pass
+
+def compute_normalized_ssd(im_orig: np.ndarray, im_zoomed: np.ndarray) -> float:
+    """Computes normalized sum of squared differences."""
+    pass
+\end{lstlisting}
+
+\subsection{Discussion \& Observations}
+\textit{Compare SSD scores for Nearest Neighbor vs Bilinear interpolation and analyze visual artifacts...}
+
+\newpage
+
+% ---------------------------------------------------------
+% QUESTION 9
+% ---------------------------------------------------------
+\section{Question 9: GrabCut Segmentation \& Background Blurring}
+
+\subsection{Task Description}
+Consider the Marguerite Daisy flower image.
+\begin{enumerate}
+    \item \textbf{(a)} Use \texttt{cv.grabCut} to segment flower foreground. Show final segmentation mask, extracted foreground image, and extracted background image.
+    \item \textbf{(b)} Produce enhanced image with a substantially blurred background (using Gaussian filter). Display original alongside enhanced image.
+    \item \textbf{(c)} \textbf{Discussion Question:} Why is the background area just beyond the edge of the flower quite dark in the enhanced image?
+\end{enumerate}
+
+\subsection{Implementation Code Stub}
+\begin{lstlisting}[language=Python, caption={GrabCut Segmentation Code Stub}]
+# TODO: Load flower image
+# TODO: Define bounding box surrounding flower foreground
+# TODO: Run cv.grabCut to compute segmentation mask
+# TODO: Apply Gaussian Blur to background image and composite
+\end{lstlisting}
+
+\subsection{Discussion \& Answer to Part (c)}
+\textit{Explain why color bleeding / halo artifacts occur along boundary pixels when applying spatial blurring to background...}
+
+\newpage
+
+% ---------------------------------------------------------
+% QUESTION 10
+% ---------------------------------------------------------
+\section{Question 10: Edge-Preserving Bilateral Filtering}
+
+\subsection{Task Description}
+\begin{enumerate}
+    \item \textbf{(a)} Use OpenCV \texttt{cv.bilateralFilter} with spatial parameter $\sigma_s$ and range parameter $\sigma_r$. Display original image, Gaussian blurred image, and bilateral filtered image side-by-side.
+    \item \textbf{(b)} Implement custom bilateral filter from scratch. Compare results with OpenCV's \texttt{cv.bilateralFilter}. Evaluate results with a quantitative measure (e.g. MSE, PSNR, or SSIM).
+\end{enumerate}
+
+\subsection{Implementation Code Stub}
+\begin{lstlisting}[language=Python, caption={Custom Bilateral Filter Stub}]
+def custom_bilateral_filter(im: np.ndarray, d: int, sigma_color: float, sigma_space: float) -> np.ndarray:
+    """Custom implementation of 2D Bilateral Filter."""
+    pass
+\end{lstlisting}
+
+\subsection{Discussion \& Observations}
+\textit{Discuss edge preservation behavior, effect of sigma\_color vs sigma\_space, and quantitative evaluation metrics...}
 
 \end{document}

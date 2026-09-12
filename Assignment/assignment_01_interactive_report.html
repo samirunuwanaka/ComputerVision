@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EN3160 Assignment 1 - Interactive Executable Report (A4 Format)</title>
+    <title>EN3160 Assignment 1 - Interactive Executable Laboratory Report</title>
 
     <!-- KaTeX for Rendering Mathematical Formulas -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
@@ -15,18 +15,16 @@
     <script defer src="interactive_report.js"></script>
 
     <style>
-        /* CSS Reset & General Rules */
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: 'Latin Modern Roman', 'Computer Modern', 'Georgia', 'Times New Roman', serif;
             background-color: #0f172a;
             color: #1e293b;
-            line-height: 1.5;
-            font-size: 10.5pt;
+            line-height: 1.6;
+            font-size: 11pt;
         }
 
-        /* Fixed Top Navigation Bar (Screen view only) */
         .no-print-bar {
             position: fixed;
             top: 0; left: 0; right: 0;
@@ -55,7 +53,6 @@
 
         .no-print-bar button:hover { background: #1d4ed8; }
 
-        /* Container for Centered Document Pages */
         .document-wrapper {
             margin-top: 60px;
             padding: 20px 0;
@@ -65,11 +62,10 @@
             gap: 25px;
         }
 
-        /* Standard A4 Page Format: 210mm x 297mm with 25mm Margins */
         .a4-page {
             width: 210mm;
             min-height: 297mm;
-            padding: 25mm; /* Preserves exact geometry [margin=25mm] */
+            padding: 25mm;
             background: white;
             box-shadow: 0 6px 20px rgba(0,0,0,0.2);
             position: relative;
@@ -78,7 +74,6 @@
             justify-content: space-between;
         }
 
-        /* Running Header & Footer */
         .page-header {
             display: flex;
             justify-content: space-between;
@@ -100,7 +95,6 @@
             font-family: system-ui, sans-serif;
         }
 
-        /* Headings & Text Styling */
         h1, h2, h3, h4 {
             font-family: system-ui, -apple-system, sans-serif;
             color: #0f172a;
@@ -114,7 +108,6 @@
 
         p { text-align: justify; margin-bottom: 10px; }
 
-        /* Formula & Equation Display Box */
         .equation-box {
             background: #f8fafc;
             border-left: 4px solid #2563eb;
@@ -123,7 +116,6 @@
             text-align: center;
         }
 
-        /* Code Block Formatting */
         pre {
             background: #1e293b;
             color: #f8fafc;
@@ -135,7 +127,26 @@
             margin: 8px 0;
         }
 
-        /* Interactive Controls Container */
+        .report-img-container {
+            text-align: center;
+            margin: 12px 0;
+        }
+
+        .report-img {
+            max-width: 100%;
+            height: auto;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .img-caption {
+            font-size: 9pt;
+            color: #475569;
+            font-style: italic;
+            margin-top: 4px;
+        }
+
         .interactive-box {
             background: #f8fafc;
             border: 1px solid #cbd5e1;
@@ -190,7 +201,19 @@
             height: 140px;
         }
 
-        /* Table Styling */
+        .canvas-side-by-side {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .canvas-side-by-side canvas {
+            width: 50%;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            background: #000;
+        }
+
         table.data-table {
             width: 100%;
             border-collapse: collapse;
@@ -206,7 +229,6 @@
 
         table.data-table th { background: #f1f5f9; font-weight: bold; }
 
-        /* Discussion Highlight Box */
         .discussion-box {
             background: #eff6ff;
             border-left: 4px solid #3b82f6;
@@ -215,11 +237,10 @@
             font-size: 10pt;
         }
 
-        /* Standard Print Rules enforcing exact A4 geometry with 25mm margins */
         @media print {
             @page {
                 size: A4 portrait;
-                margin: 25mm; /* Preserves explicit LaTeX geometry [margin=25mm] */
+                margin: 25mm;
             }
 
             body { background: white; color: black; }
@@ -239,10 +260,9 @@
 </head>
 <body>
 
-    <!-- Floating Navbar -->
     <div class="no-print-bar">
-        <div><strong>EN3160 Assignment 1 Executable Report</strong> (A4 Format | 25mm Margins Preserved)</div>
-        <button onclick="printReport()">🖨️ Export PDF / Print</button>
+        <div><strong>EN3160 Assignment 1 Executable Interactive Report</strong></div>
+        <button onclick="window.print()">🖨️ Export PDF / Print</button>
     </div>
 
     <div class="document-wrapper">
@@ -289,7 +309,7 @@
                 </div>
 
                 <div style="font-size:10pt; color:#64748b;">
-                    Official Academic Assignment Report & Interactive Browser Simulation
+                    Official Academic Assignment Interactive Laboratory Report & Visual Simulator
                 </div>
             </div>
 
@@ -306,42 +326,43 @@
             <div>
                 <h2>Question 1: Piecewise Linear Intensity Transformation</h2>
                 <p>
-                    Piecewise linear intensity transformations allow customized mapping from input intensity values $x \in [0, 255]$ to output intensity values $y \in [0, 255]$. The transformation function `intensity_transform(im, breakpoints)` uses lookup tables (LUT) constructed via linear interpolation (`np.interp`).
+                    Piecewise linear intensity transformations map input pixel intensities $x \in [0, 255]$ to output intensities $y \in [0, 255]$. The function `intensity_transform(im, breakpoints)` constructs a 256-element Look-Up Table (LUT) via piecewise interpolation.
                 </p>
                 <div class="equation-box">
                     $$ y = T(x) = y_i + \frac{y_{i+1} - y_i}{x_{i+1} - x_i} (x - x_i), \qquad x \in [x_i, x_{i+1}] $$
                 </div>
 
-                <!-- Interactive Widget Q1/Q2 -->
+                <div class="report-img-container">
+                    <img src="Figures/q1_transform.png" alt="Question 1 Plot" class="report-img">
+                    <div class="img-caption">Figure 1: Piecewise linear transformation curve $T(r)$ and contrast enhancement comparison on im01.png.</div>
+                </div>
+
                 <div class="interactive-box">
-                    <h4>⚡ Interactive Piecewise Linear Curve Simulator (Q1 & Q2)</h4>
+                    <h4>⚡ Live Piecewise Linear Curve Simulator (Q1 & Q2)</h4>
                     <div class="btn-group">
-                        <button class="btn-sm" id="btnQ1Contrast">General Contrast Boost</button>
+                        <button class="btn-sm" id="btnQ1Contrast">Contrast Boost</button>
                         <button class="btn-sm" id="btnQ2WM">Q2 (a): White Matter Accentuation</button>
                         <button class="btn-sm" id="btnQ2GM">Q2 (b): Gray Matter Accentuation</button>
                     </div>
                     <div class="control-row">
                         <label>Breakpoint 1 (x1, y1):</label>
                         <input type="number" id="q1_p1x" value="50" min="0" max="255">
-                        <input type="number" id="q1_p1y" value="50" min="0" max="255">
+                        <input type="number" id="q1_p1y" value="20" min="0" max="255">
                         <label>Breakpoint 2 (x2, y2):</label>
-                        <input type="number" id="q1_p2x" value="200" min="0" max="255">
-                        <input type="number" id="q1_p2y" value="200" min="0" max="255">
+                        <input type="number" id="q1_p2x" value="150" min="0" max="255">
+                        <input type="number" id="q1_p2y" value="220" min="0" max="255">
                     </div>
                     <canvas id="q1Canvas" class="plot-canvas" width="400" height="140"></canvas>
                 </div>
 
                 <h2>Question 2: Tissue Accentuation in Brain Proton Density Slice</h2>
-                <p>
-                    Analyzing the histogram of brain proton density image `im02.png` reveals distinct intensity bands:
-                </p>
-                <ul>
-                    <li><strong>White Matter Accentuation:</strong> High intensity band $x \in [140, 210]$. Setting $y \approx 250$ for this range while suppressing lower intensities accentuates white matter fiber tracks.</li>
-                    <li><strong>Gray Matter Accentuation:</strong> Mid intensity band $x \in [80, 150]$. Mapping $x \in [80, 150] \to y \approx 230$ highlights cerebral cortex regions.</li>
-                </ul>
+                <div class="report-img-container">
+                    <img src="Figures/q2_brain.png" alt="Question 2 Brain Tissue Accentuation" class="report-img">
+                    <div class="img-caption">Figure 2: Selective tissue accentuation of White Matter and Gray Matter on brain PD slice im02.png.</div>
+                </div>
 
                 <div class="discussion-box">
-                    <strong>Discussion (Q1 & Q2):</strong> Breakpoint positioning directly controls dynamic range expansion. Stretching steep slopes across specific intensity bands increases contrast in those regions, while flattening slopes compresses uninteresting background intensities.
+                    <strong>Discussion (Q1 & Q2):</strong> Changing breakpoint coordinates alters slope steepness $\frac{\Delta y}{\Delta x}$. Slopes $>1$ stretch dynamic range, boosting contrast across specific intensity intervals (e.g. White Matter $[140, 210]$ or Gray Matter $[75, 135]$).
                 </div>
             </div>
 
@@ -358,14 +379,19 @@
             <div>
                 <h2>Question 3: Gamma Correction in $L^*a^*b^*$ Color Space</h2>
                 <p>
-                    To modify luminance without distorting chromaticity, gamma correction is applied strictly to the $L^*$ plane in $L^*a^*b^*$ color space using the normalized power-law transformation:
+                    Gamma correction is applied strictly to the $L^*$ plane in $L^*a^*b^*$ space to modify luminance without color shift:
                 </p>
                 <div class="equation-box">
                     $$ L_{\text{out}} = 255 \times \left(\frac{L_{\text{in}}}{255}\right)^\gamma $$
                 </div>
 
+                <div class="report-img-container">
+                    <img src="Figures/q3_gamma.png" alt="Question 3 Gamma Correction" class="report-img">
+                    <div class="img-caption">Figure 3: Gamma correction ($\gamma = 0.6$) on $L^*$ channel and luminance histogram shift.</div>
+                </div>
+
                 <div class="interactive-box">
-                    <h4>⚡ Gamma Correction Visualizer (Q3)</h4>
+                    <h4>⚡ Live Gamma Curve Visualizer ($\gamma$)</h4>
                     <div class="control-row">
                         <label>Gamma ($\gamma$):</label>
                         <input type="range" id="q3GammaSlider" min="0.2" max="2.5" step="0.05" value="0.6">
@@ -376,24 +402,25 @@
 
                 <h2>Question 4: Vibrance Enhancement in HSV Color Space</h2>
                 <p>
-                    Vibrance selectively enhances muted colors while preventing over-saturation of already vibrant pixels. This is achieved by applying a Gaussian-weighted saturation boost $f(x)$ on the $S$ channel in HSV space:
+                    Vibrance boosts muted saturation values while avoiding clipping of already vibrant pixels:
                 </p>
                 <div class="equation-box">
                     $$ f(x) = \min\left(x + a \times 128 e^{-\frac{(x-128)^2}{2\sigma^2}}, 255\right), \qquad \sigma = 70 $$
                 </div>
 
-                <div class="interactive-box">
-                    <h4>⚡ Saturation Vibrance Boost Function $f(x)$ (Q4)</h4>
-                    <div class="control-row">
-                        <label>Vibrance Factor ($a$):</label>
-                        <input type="range" id="q4ASlider" min="0.0" max="1.0" step="0.05" value="0.5">
-                        <span id="q4AVal" style="font-weight:bold; color:#ec4899;">0.50</span>
-                    </div>
-                    <canvas id="q4Canvas" class="plot-canvas" width="400" height="130"></canvas>
+                <div class="report-img-container">
+                    <img src="Figures/q4_vibrance.png" alt="Question 4 Vibrance Enhancement" class="report-img">
+                    <div class="img-caption">Figure 4: Gaussian-weighted vibrance curve $f(x)$ ($a=0.6, \sigma=70$) on im04.jpg.</div>
                 </div>
 
-                <div class="discussion-box">
-                    <strong>Discussion (Q3 & Q4):</strong> Gamma correction with $\gamma < 1$ expands shadow intensities in the luminance plane $L^*$ without color shifting. Gaussian saturation boosting targets mid-saturation pixels ($S \approx 128$), avoiding color clipping artifacts.
+                <div class="interactive-box">
+                    <h4>⚡ Live Vibrance Boost Curve ($a$)</h4>
+                    <div class="control-row">
+                        <label>Vibrance Factor ($a$):</label>
+                        <input type="range" id="q4ASlider" min="0.0" max="1.0" step="0.05" value="0.6">
+                        <span id="q4AVal" style="font-weight:bold; color:#ec4899;">0.60</span>
+                    </div>
+                    <canvas id="q4Canvas" class="plot-canvas" width="400" height="130"></canvas>
                 </div>
             </div>
 
@@ -410,37 +437,32 @@
             <div>
                 <h2>Question 5: Custom Histogram Equalization</h2>
                 <p>
-                    Custom histogram equalization redistributes gray level intensities to yield a uniform Probability Density Function (PDF).
+                    Custom histogram equalization transforms intensity values to yield a uniform Probability Density Function:
                 </p>
                 <div class="equation-box">
                     $$ p(r_k) = \frac{n_k}{MN}, \qquad T(r_k) = \sum_{j=0}^k p(r_j), \qquad s_k = \text{round}\left(255 \cdot T(r_k)\right) $$
                 </div>
 
-                <h2>Question 6: Selective Foreground Histogram Equalization</h2>
-                <p>
-                    Global histogram equalization often over-amplifies background noise. Selective foreground equalization applies cumulative histogram mapping exclusively to foreground pixels extracted via HSV plane thresholding:
-                </p>
-                <ol>
-                    <li>Convert image to HSV space and threshold Saturation $S$ channel to form binary foreground mask $M$.</li>
-                    <li>Extract foreground pixel intensities using bitwise operation $I_{\text{fg}} = I \cdot M$.</li>
-                    <li>Compute cumulative sum of foreground histogram $\text{CDF}_{\text{fg}} = \text{cumsum}(h_{\text{fg}})$.</li>
-                    <li>Map foreground pixel intensities and recombine with undisturbed background.</li>
-                </ol>
-
-                <div class="interactive-box">
-                    <h4>⚡ Cumulative Distribution Function (CDF) Mapping (Q5 & Q6)</h4>
-                    <canvas id="q5Canvas" class="plot-canvas" width="400" height="140"></canvas>
+                <div class="report-img-container">
+                    <img src="Figures/q5_histeq.png" alt="Question 5 Custom Histogram Equalization" class="report-img">
+                    <div class="img-caption">Figure 5: Custom histogram equalization vs OpenCV cv.equalizeHist() on im05.jpg.</div>
                 </div>
 
-                <div class="discussion-box">
-                    <strong>Discussion (Q5 & Q6):</strong> Manual histogram equalization matched OpenCV's `cv.equalizeHist` exactly. Selective foreground equalization preserved dark background regions while dramatically enhancing detail on the subject.
+                <h2>Question 6: Selective Foreground Histogram Equalization</h2>
+                <p>
+                    Thresholding Saturation channel $S$ generates a binary foreground mask $M$. Equalization is executed exclusively on foreground pixels $V[M > 0]$:
+                </p>
+
+                <div class="report-img-container">
+                    <img src="Figures/q6_selective.png" alt="Question 6 Selective Foreground Equalization" class="report-img">
+                    <div class="img-caption">Figure 6: Intermediate HSV planes, foreground mask M, and selective vs global equalization on q1.jpeg.</div>
                 </div>
             </div>
 
             <div class="page-footer">Page 4</div>
         </div>
 
-        <!-- ==================== PAGE 5: Q7 ==================== -->
+        <!-- ==================== PAGE 5: Q7 & Q8 ==================== -->
         <div class="a4-page">
             <div class="page-header">
                 <span>EN3160 -- Image Processing and Machine Vision</span>
@@ -448,14 +470,14 @@
             </div>
 
             <div>
-                <h2>Question 7: Sobel Filtering & Kernel Separability</h2>
+                <h2>Question 7: Sobel Edge Filtering & Kernel Separability</h2>
                 <p>
-                    Spatial edge detection using the Sobel operator computes directional gradient components $G_x$ and $G_y$. The 2D horizontal Sobel kernel is mathematically separable into 1D column and row vectors:
+                    The 2D Sobel kernel factors into 1D column and row vectors, reducing complexity from $O(9 \cdot MN)$ to $O(6 \cdot MN)$:
                 </p>
-                <div class="equation-box">
-                    $$
-                    S_x = \begin{bmatrix} 1 & 0 & -1 \\ 2 & 0 & -2 \\ 1 & 0 & -1 \end{bmatrix} = \begin{bmatrix} 1 \\ 2 \\ 1 \end{bmatrix} * \begin{bmatrix} 1 & 0 & -1 \end{bmatrix}
-                    $$
+
+                <div class="report-img-container">
+                    <img src="Figures/q7_sobel.png" alt="Question 7 Sobel Edge Detection" class="report-img">
+                    <div class="img-caption">Figure 7: Sobel magnitude edge maps across 2D OpenCV, 2D Manual, and 1D Separable filtering on q2.jpeg.</div>
                 </div>
 
                 <div class="interactive-box">
@@ -486,77 +508,19 @@
                             <td id="q7Flops1D" style="font-weight:bold; color:#10b981;">1.57 MFLOPs</td>
                         </tr>
                     </table>
-                    <p style="font-size:11px; margin-top:6px; color:#2563eb; font-weight:bold;" id="q7Speedup">1.50x Computational Speedup (33% FLOP reduction)</p>
                 </div>
 
-                <div class="discussion-box">
-                    <strong>Discussion (Q7):</strong> Separable filtering reduces arithmetic operations per pixel from 9 multiplications to 6 additions/multiplications, yielding identical edge magnitude outputs while significantly lowering execution time on large images.
+                <h2>Question 8: Image Zooming & Normalized SSD Evaluation</h2>
+                <div class="report-img-container">
+                    <img src="Figures/q8_zooming.png" alt="Question 8 Image Zooming" class="report-img">
+                    <div class="img-caption">Figure 8: 4x image zooming comparison and Normalized SSD values on im01small.png.</div>
                 </div>
             </div>
 
             <div class="page-footer">Page 5</div>
         </div>
 
-        <!-- ==================== PAGE 6: Q8 ==================== -->
-        <div class="a4-page">
-            <div class="page-header">
-                <span>EN3160 -- Image Processing and Machine Vision</span>
-                <span>Assignment 1</span>
-            </div>
-
-            <div>
-                <h2>Question 8: Image Zooming & Normalized SSD Evaluation</h2>
-                <p>
-                    Image upscaling maps target coordinates $(x', y')$ back to input source coordinates $(x, y) = (x'/s, y'/s)$. Two interpolation techniques were implemented and evaluated:
-                </p>
-                <ul>
-                    <li><strong>Nearest-Neighbor Interpolation:</strong> Takes intensity of nearest integer pixel $( \lfloor x + 0.5 \rfloor, \lfloor y + 0.5 \rfloor )$.</li>
-                    <li><strong>Bilinear Interpolation:</strong> Takes weighted linear combination of 4 surrounding pixels:</li>
-                </ul>
-                <div class="equation-box">
-                    $$ I(x,y) = (1-dx)(1-dy)I_{00} + dx(1-dy)I_{10} + (1-dx)dy I_{01} + dx\,dy\,I_{11} $$
-                </div>
-
-                <p>Accuracy was quantitatively measured using Normalized Sum of Squared Differences (SSD):</p>
-                <div class="equation-box">
-                    $$ \text{SSD}_{\text{norm}} = \frac{\sum_{i,j} (I_{\text{orig}}(i,j) - I_{\text{zoomed}}(i,j))^2}{\sum_{i,j} I_{\text{orig}}(i,j)^2} $$
-                </div>
-
-                <div class="interactive-box">
-                    <h4>⚡ Interactive Zoom Scale Factor & SSD Metric Simulator</h4>
-                    <div class="control-row">
-                        <label>Scale Factor ($s$):</label>
-                        <input type="range" id="q8FactorSlider" min="1.0" max="8.0" step="0.5" value="4.0">
-                        <span id="q8FactorVal" style="font-weight:bold; color:#2563eb;">4.0x</span>
-                    </div>
-                    <table class="data-table">
-                        <tr>
-                            <th>Interpolation Method</th>
-                            <th>Normalized SSD Score</th>
-                            <th>Visual Characteristics</th>
-                        </tr>
-                        <tr>
-                            <td>Nearest-Neighbor</td>
-                            <td id="q8SsdNN" style="font-weight:bold; color:#ef4444;">0.04250</td>
-                            <td>Blocky, pixelated stair-casing artifacts</td>
-                        </tr>
-                        <tr>
-                            <td>Bilinear Interpolation</td>
-                            <td id="q8SsdBilinear" style="font-weight:bold; color:#10b981;">0.01850</td>
-                            <td>Smooth transitions, lower reconstruction error</td>
-                        </tr>
-                    </table>
-                </div>
-
-                <div class="discussion-box">
-                    <strong>Discussion (Q8):</strong> Bilinear interpolation achieved a lower Normalized SSD score than Nearest-Neighbor because continuous weighted averaging avoids blocky intensity discontinuities along high-frequency edges.
-                </div>
-            </div>
-
-            <div class="page-footer">Page 6</div>
-        </div>
-
-        <!-- ==================== PAGE 7: Q9 ==================== -->
+        <!-- ==================== PAGE 6: Q9 & Q10 ==================== -->
         <div class="a4-page">
             <div class="page-header">
                 <span>EN3160 -- Image Processing and Machine Vision</span>
@@ -565,72 +529,26 @@
 
             <div>
                 <h2>Question 9: GrabCut Segmentation & Background Blurring</h2>
-                <p>
-                    Background blurring simulates shallow depth-of-field. The Marguerite Daisy flower foreground was segmented using `cv.grabCut` based on Gaussian Mixture Models (GMM) and Graph Cut optimization.
-                </p>
-
-                <div class="interactive-box">
-                    <h4>⚡ Interactive Background Gaussian Blur Simulator</h4>
-                    <div class="control-row">
-                        <label>Gaussian Kernel Size ($k \times k$):</label>
-                        <input type="range" id="q9BlurSlider" min="3" max="31" step="2" value="15">
-                        <span id="q9BlurVal" style="font-weight:bold; color:#2563eb;">15 x 15</span>
-                    </div>
+                <div class="report-img-container">
+                    <img src="Figures/q9_grabcut.png" alt="Question 9 GrabCut Segmentation" class="report-img">
+                    <div class="img-caption">Figure 9: GrabCut segmentation stages and background blur composition.</div>
                 </div>
 
-                <h3>Discussion & Answer to Part (c): Edge Artifact Analysis</h3>
-                <p>
-                    <strong>Question:</strong> Why is the background area just beyond the edge of the flower quite dark in the enhanced image?
-                </p>
                 <div class="discussion-box">
-                    <strong>Answer & Root Cause Analysis:</strong>
-                    When Gaussian blurring is applied directly to the background image with the flower region zeroed out or masked, boundary pixels of the background take spatial weighted averages of nearby background pixels and zero-intensity (black) masked foreground pixels. 
-                    <br><br>
-                    This spatial convolution causes zero-intensity spillover ("color bleeding"), resulting in a dark halo/shadow ring surrounding the foreground flower perimeter. To eliminate this artifact, background pixels underlying the foreground mask should first be filled using inpainting before spatial blurring.
+                    <strong>Answer to Part (c) Halo Artifacts:</strong> Spatial Gaussian blurring on background pixels immediately adjacent to foreground boundaries incorporates dark foreground flower edge pixels. When the sharp foreground is pasted back, dark edge information has already bled into adjacent background pixels, causing dark boundary halos.
                 </div>
-            </div>
 
-            <div class="page-footer">Page 7</div>
-        </div>
-
-        <!-- ==================== PAGE 8: Q10 ==================== -->
-        <div class="a4-page">
-            <div class="page-header">
-                <span>EN3160 -- Image Processing and Machine Vision</span>
-                <span>Assignment 1</span>
-            </div>
-
-            <div>
                 <h2>Question 10: Edge-Preserving Bilateral Filtering</h2>
-                <p>
-                    Standard Gaussian blurring smooths across edges, degrading sharp structural boundaries. The bilateral filter replaces each pixel intensity with a weighted average of neighbor intensities using both spatial distance $\sigma_s$ and intensity range difference $\sigma_r$:
-                </p>
-                <div class="equation-box">
-                    $$ I^{\text{filtered}}(p) = \frac{1}{W_p} \sum_{q \in S} I(q) \exp\left(-\frac{\|p-q\|^2}{2\sigma_s^2}\right) \exp\left(-\frac{\|I(p)-I(q)\|^2}{2\sigma_r^2}\right) $$
-                </div>
-
-                <div class="interactive-box">
-                    <h4>⚡ Bilateral Filter Kernel Parameters & Range Weight Visualizer</h4>
-                    <div class="control-row">
-                        <label>Spatial Sigma ($\sigma_s$):</label>
-                        <input type="number" id="q10SigS" value="15.0" step="1.0">
-                        <span id="q10SigSVal" style="font-weight:bold; color:#2563eb;">15.0</span>
-                        <label style="margin-left:15px;">Range Sigma ($\sigma_r$):</label>
-                        <input type="number" id="q10SigR" value="40.0" step="5.0">
-                        <span id="q10SigRVal" style="font-weight:bold; color:#f59e0b;">40.0</span>
-                    </div>
-                    <canvas id="q10Canvas" class="plot-canvas" width="400" height="130"></canvas>
-                </div>
-
-                <div class="discussion-box">
-                    <strong>Discussion (Q10):</strong> The range Gaussian term $\exp\left(-\frac{\|I(p)-I(q)\|^2}{2\sigma_r^2}\right)$ decays rapidly across large intensity jumps ($\Delta I \gg \sigma_r$), effectively setting neighboring weights to zero across sharp edges. This achieves noise smoothing within homogeneous regions while maintaining crisp edges.
+                <div class="report-img-container">
+                    <img src="Figures/q10_bilateral.png" alt="Question 10 Edge Preserving Bilateral Filter" class="report-img">
+                    <div class="img-caption">Figure 10: Comparison of Gaussian blur vs OpenCV bilateral filter and custom bilateral filter (PSNR: 40.99 dB, SSIM: 0.9854).</div>
                 </div>
             </div>
 
-            <div class="page-footer">Page 8</div>
+            <div class="page-footer">Page 6</div>
         </div>
 
-        <!-- ==================== PAGE 9: CODE SUMMARY ==================== -->
+        <!-- ==================== PAGE 7: CONCLUSION ==================== -->
         <div class="a4-page">
             <div class="page-header">
                 <span>EN3160 -- Image Processing and Machine Vision</span>
@@ -638,47 +556,7 @@
             </div>
 
             <div>
-                <h2>Core Implementation Code Stubs Summary</h2>
-                <p>Key algorithmic Python implementations for the assignment functions:</p>
-
-                <pre><code>def custom_histogram_equalization(img_gray: np.ndarray) -> np.ndarray:
-    # 1. Compute intensity counts
-    hist, _ = np.histogram(img_gray.flatten(), 256, [0, 256])
-    # 2. Normalized CDF
-    cdf = hist.cumsum() / hist.sum()
-    # 3. Intensity lookup mapping
-    lut = np.round(cdf * 255).astype(np.uint8)
-    return lut[img_gray]
-
-def custom_bilateral_filter(im: np.ndarray, d: int, sigma_c: float, sigma_s: float) -> np.ndarray:
-    radius = d // 2
-    out = np.zeros_like(im, dtype=np.float32)
-    # Pre-compute spatial Gaussian kernel
-    y, x = np.ogrid[-radius:radius+1, -radius:radius+1]
-    spatial_w = np.exp(-(x**2 + y**2) / (2 * sigma_s**2))
-    
-    pad_im = np.pad(im.astype(np.float32), radius, mode='reflect')
-    for i in range(im.shape[0]):
-        for j in range(im.shape[1]):
-            region = pad_im[i:i+d, j:j+d]
-            range_w = np.exp(-((region - pad_im[i+radius, j+radius])**2) / (2 * sigma_c**2))
-            w = spatial_w * range_w
-            out[i, j] = np.sum(region * w) / np.sum(w)
-    return np.clip(out, 0, 255).astype(np.uint8)</code></pre>
-            </div>
-
-            <div class="page-footer">Page 9</div>
-        </div>
-
-        <!-- ==================== PAGE 10: CONCLUSION ==================== -->
-        <div class="a4-page">
-            <div class="page-header">
-                <span>EN3160 -- Image Processing and Machine Vision</span>
-                <span>Assignment 1</span>
-            </div>
-
-            <div>
-                <h2>Conclusion & Summary of Findings</h2>
+                <h2>Conclusion & Technical Summary</h2>
                 <table class="data-table">
                     <thead>
                         <tr>
@@ -689,28 +567,21 @@ def custom_bilateral_filter(im: np.ndarray, d: int, sigma_c: float, sigma_s: flo
                     <tbody>
                         <tr>
                             <td>Intensity Transformations</td>
-                            <td>Piecewise linear curves permit targeted contrast enhancement; $L^*a^*b^*$ gamma correction avoids color shift; Gaussian vibrance boosting avoids clipping saturated colors.</td>
+                            <td>Piecewise linear LUT mapping, $L^*a^*b^*$ gamma correction, and HSV Gaussian vibrance boosting enable precise contrast and color control without distortion.</td>
                         </tr>
                         <tr>
                             <td>Histogram Processing</td>
-                            <td>Selective foreground equalization isolates interest objects without degrading background black levels.</td>
+                            <td>Selective foreground equalization isolates interest objects without amplifying background noise.</td>
                         </tr>
                         <tr>
                             <td>Neighborhood Filtering</td>
-                            <td>Sobel kernel separability reduces FLOP count by 33%; bilateral filtering preserves sharp edges while smoothing intra-region noise.</td>
+                            <td>Sobel 1D separable factorization saves 33% FLOPs; Bilateral filtering smooths intra-region noise while preserving sharp edge boundaries (40.99 dB PSNR).</td>
                         </tr>
                     </tbody>
                 </table>
-
-                <div style="margin-top:40px; padding:15px; border:1px dashed #2563eb; border-radius:6px; background:#eff6ff;">
-                    <h3 style="margin-top:0;">Declaration & Repository Verification</h3>
-                    <p style="margin-bottom:0;">
-                        All code stubs, Jupyter notebooks, interactive scripts, and report formatting have been committed to the official repository: <a href="https://github.com/samirunuwanaka" style="color:#2563eb; font-weight:bold;">https://github.com/samirunuwanaka</a>.
-                    </p>
-                </div>
             </div>
 
-            <div class="page-footer">Page 10</div>
+            <div class="page-footer">Page 7</div>
         </div>
 
     </div>
