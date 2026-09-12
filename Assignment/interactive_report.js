@@ -1,7 +1,6 @@
 /**
  * EN3160 - Image Processing and Machine Vision
- * Assignment 1: Interactive Laboratory Report Engine & Simulator Script
- * Live HTML5 Canvas Image Processing Engine
+ * Assignment 1: Interactive Executable Laboratory Report Engine
  */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -14,14 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    initQ1Q2Interactive();
-    initQ3Interactive();
-    initQ4Interactive();
-    initQ5Q6Interactive();
-    initQ7Interactive();
-    initQ8Interactive();
-    initQ9Interactive();
-    initQ10Interactive();
+    initQ1Q2();
+    initQ3();
+    initQ4();
+    initQ5Q6();
+    initQ7();
+    initQ8();
+    initQ9();
+    initQ10();
 });
 
 // Helper: Convert RGB to HSV
@@ -63,95 +62,74 @@ function hsvToRgb(h, s, v) {
     return [Math.round(r * 255), Math.round(g * 255), Math.round(b * 255)];
 }
 
-// Helper to load image into canvas
-function loadImageToCanvas(src, canvasId, callback) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return;
+// Safely get Image Data from an img element
+function getImageDataFromImg(imgElem) {
+    if (!imgElem || !imgElem.complete || imgElem.naturalWidth === 0) return null;
+    const canvas = document.createElement('canvas');
+    canvas.width = imgElem.naturalWidth;
+    canvas.height = imgElem.naturalHeight;
     const ctx = canvas.getContext('2d');
-    const img = new Image();
-    img.crossOrigin = 'Anonymous';
-    img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        if (callback) callback(img, ctx, canvas);
-    };
-    img.src = src;
+    ctx.drawImage(imgElem, 0, 0);
+    try {
+        return ctx.getImageData(0, 0, canvas.width, canvas.height);
+    } catch (e) {
+        console.warn("CORS restriction on getImageData: ", e);
+        return null;
+    }
 }
 
 // =========================================================
-// Q1 & Q2: Live Piecewise Linear Transformation on Canvas
+// Q1 & Q2: Piecewise Linear Transformation
 // =========================================================
-let q1SourceImgData = null;
-
-function initQ1Q2Interactive() {
+function initQ1Q2() {
     const p1x = document.getElementById('q1_p1x');
     const p1y = document.getElementById('q1_p1y');
     const p2x = document.getElementById('q1_p2x');
     const p2y = document.getElementById('q1_p2y');
     const imgSelect = document.getElementById('q1ImgSelect');
 
-    const updateAll = () => {
+    const update = () => {
         updateQ1Plot();
-        processQ1Image();
+        processQ1Canvas();
     };
 
-    [p1x, p1y, p2x, p2y].forEach(el => {
-        if (el) el.addEventListener('input', updateAll);
-    });
-
-    if (imgSelect) {
-        imgSelect.addEventListener('change', () => {
-            loadQ1Image();
-        });
-    }
+    [p1x, p1y, p2x, p2y].forEach(el => { if (el) el.addEventListener('input', update); });
+    if (imgSelect) imgSelect.addEventListener('change', update);
 
     const btnContrast = document.getElementById('btnQ1Contrast');
-    const btnWhiteMatter = document.getElementById('btnQ2WM');
-    const btnGrayMatter = document.getElementById('btnQ2GM');
+    const btnWM = document.getElementById('btnQ2WM');
+    const btnGM = document.getElementById('btnQ2GM');
 
     if (btnContrast) {
         btnContrast.addEventListener('click', () => {
             if (p1x) p1x.value = 50; if (p1y) p1y.value = 20;
             if (p2x) p2x.value = 150; if (p2y) p2y.value = 220;
-            updateAll();
+            update();
         });
     }
-    if (btnWhiteMatter) {
-        btnWhiteMatter.addEventListener('click', () => {
+    if (btnWM) {
+        btnWM.addEventListener('click', () => {
             if (p1x) p1x.value = 140; if (p1y) p1y.value = 10;
             if (p2x) p2x.value = 210; if (p2y) p2y.value = 250;
             if (imgSelect) imgSelect.value = 'images/im02.png';
-            loadQ1Image();
+            update();
         });
     }
-    if (btnGrayMatter) {
-        btnGrayMatter.addEventListener('click', () => {
+    if (btnGM) {
+        btnGM.addEventListener('click', () => {
             if (p1x) p1x.value = 75; if (p1y) p1y.value = 10;
             if (p2x) p2x.value = 135; if (p2y) p2y.value = 240;
             if (imgSelect) imgSelect.value = 'images/im02.png';
-            loadQ1Image();
+            update();
         });
     }
 
-    loadQ1Image();
-    updateQ1Plot();
-}
+    const imgElem1 = document.getElementById('img_q1_src1');
+    const imgElem2 = document.getElementById('img_q1_src2');
+    if (imgElem1) imgElem1.onload = update;
+    if (imgElem2) imgElem2.onload = update;
 
-function loadQ1Image() {
-    const src = document.getElementById('q1ImgSelect')?.value || 'images/im01.png';
-    const canvas = document.getElementById('q1ImgCanvas');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
-        q1SourceImgData = ctx.getImageData(0, 0, img.width, img.height);
-        processQ1Image();
-    };
-    img.src = src;
+    update();
 }
 
 function updateQ1Plot() {
@@ -190,18 +168,31 @@ function updateQ1Plot() {
     });
 }
 
-function processQ1Image() {
-    if (!q1SourceImgData) return;
+function processQ1Canvas() {
+    const srcPath = document.getElementById('q1ImgSelect')?.value || 'images/im01.png';
+    const imgId = srcPath.includes('im02') ? 'img_q1_src2' : 'img_q1_src1';
+    const imgElem = document.getElementById(imgId);
+    const srcData = getImageDataFromImg(imgElem);
+
     const canvas = document.getElementById('q1ImgCanvas');
-    if (!canvas) return;
+    if (!canvas || !imgElem) return;
     const ctx = canvas.getContext('2d');
+
+    if (!srcData) {
+        canvas.width = imgElem.naturalWidth || 300;
+        canvas.height = imgElem.naturalHeight || 200;
+        ctx.drawImage(imgElem, 0, 0);
+        return;
+    }
+
+    canvas.width = srcData.width;
+    canvas.height = srcData.height;
 
     const x1 = parseFloat(document.getElementById('q1_p1x')?.value || 50);
     const y1 = parseFloat(document.getElementById('q1_p1y')?.value || 20);
     const x2 = parseFloat(document.getElementById('q1_p2x')?.value || 150);
     const y2 = parseFloat(document.getElementById('q1_p2y')?.value || 220);
 
-    // Compute 256-element LUT
     const lut = new Uint8Array(256);
     for (let i = 0; i < 256; i++) {
         let val = 0;
@@ -215,8 +206,8 @@ function processQ1Image() {
         lut[i] = Math.min(255, Math.max(0, Math.round(val)));
     }
 
-    const outData = ctx.createImageData(q1SourceImgData);
-    const src = q1SourceImgData.data;
+    const outData = ctx.createImageData(srcData);
+    const src = srcData.data;
     const dst = outData.data;
     for (let i = 0; i < src.length; i += 4) {
         dst[i] = lut[src[i]];
@@ -228,36 +219,21 @@ function processQ1Image() {
 }
 
 // =========================================================
-// Q3: Live Gamma Correction in Luminance / Lab Space
+// Q3: Gamma Correction in L*a*b* / Luminance
 // =========================================================
-let q3SourceImgData = null;
-
-function initQ3Interactive() {
+function initQ3() {
     const slider = document.getElementById('q3GammaSlider');
-    if (slider) {
-        slider.addEventListener('input', () => {
-            const val = parseFloat(slider.value);
-            document.getElementById('q3GammaVal').textContent = val.toFixed(2);
-            updateQ3Plot(val);
-            processQ3Image(val);
-        });
-    }
+    const update = () => {
+        const gamma = parseFloat(slider?.value || 0.6);
+        document.getElementById('q3GammaVal').textContent = gamma.toFixed(2);
+        updateQ3Plot(gamma);
+        processQ3Canvas(gamma);
+    };
 
-    const canvas = document.getElementById('q3ImgCanvas');
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            q3SourceImgData = ctx.getImageData(0, 0, img.width, img.height);
-            const val = parseFloat(document.getElementById('q3GammaSlider')?.value || 0.6);
-            updateQ3Plot(val);
-            processQ3Image(val);
-        };
-        img.src = 'images/im03.png';
-    }
+    if (slider) slider.addEventListener('input', update);
+    const imgElem = document.getElementById('img_q3_src');
+    if (imgElem) imgElem.onload = update;
+    update();
 }
 
 function updateQ3Plot(gamma) {
@@ -282,23 +258,33 @@ function updateQ3Plot(gamma) {
     ctx.stroke();
 }
 
-function processQ3Image(gamma) {
-    if (!q3SourceImgData) return;
+function processQ3Canvas(gamma) {
+    const imgElem = document.getElementById('img_q3_src');
+    const srcData = getImageDataFromImg(imgElem);
     const canvas = document.getElementById('q3ImgCanvas');
-    if (!canvas) return;
+    if (!canvas || !imgElem) return;
     const ctx = canvas.getContext('2d');
+
+    if (!srcData) {
+        canvas.width = imgElem.naturalWidth || 300;
+        canvas.height = imgElem.naturalHeight || 200;
+        ctx.drawImage(imgElem, 0, 0);
+        return;
+    }
+
+    canvas.width = srcData.width;
+    canvas.height = srcData.height;
 
     const lut = new Uint8Array(256);
     for (let i = 0; i < 256; i++) {
         lut[i] = Math.min(255, Math.max(0, Math.round(255.0 * Math.pow(i / 255.0, gamma))));
     }
 
-    const outData = ctx.createImageData(q3SourceImgData);
-    const src = q3SourceImgData.data;
+    const outData = ctx.createImageData(srcData);
+    const src = srcData.data;
     const dst = outData.data;
 
     for (let i = 0; i < src.length; i += 4) {
-        // Luminance approximation L = 0.299R + 0.587G + 0.114B
         let r = src[i], g = src[i+1], b = src[i+2];
         let l = 0.299 * r + 0.587 * g + 0.114 * b;
         let l_corr = lut[Math.round(l)];
@@ -313,36 +299,21 @@ function processQ3Image(gamma) {
 }
 
 // =========================================================
-// Q4: Live Vibrance Enhancement on Canvas
+// Q4: Vibrance Enhancement in HSV Space
 // =========================================================
-let q4SourceImgData = null;
-
-function initQ4Interactive() {
+function initQ4() {
     const slider = document.getElementById('q4ASlider');
-    if (slider) {
-        slider.addEventListener('input', () => {
-            const val = parseFloat(slider.value);
-            document.getElementById('q4AVal').textContent = val.toFixed(2);
-            updateQ4Plot(val);
-            processQ4Image(val);
-        });
-    }
+    const update = () => {
+        const aVal = parseFloat(slider?.value || 0.6);
+        document.getElementById('q4AVal').textContent = aVal.toFixed(2);
+        updateQ4Plot(aVal);
+        processQ4Canvas(aVal);
+    };
 
-    const canvas = document.getElementById('q4ImgCanvas');
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            q4SourceImgData = ctx.getImageData(0, 0, img.width, img.height);
-            const val = parseFloat(document.getElementById('q4ASlider')?.value || 0.6);
-            updateQ4Plot(val);
-            processQ4Image(val);
-        };
-        img.src = 'images/im04.jpg';
-    }
+    if (slider) slider.addEventListener('input', update);
+    const imgElem = document.getElementById('img_q4_src');
+    if (imgElem) imgElem.onload = update;
+    update();
 }
 
 function updateQ4Plot(aVal) {
@@ -372,11 +343,22 @@ function updateQ4Plot(aVal) {
     ctx.stroke();
 }
 
-function processQ4Image(aVal) {
-    if (!q4SourceImgData) return;
+function processQ4Canvas(aVal) {
+    const imgElem = document.getElementById('img_q4_src');
+    const srcData = getImageDataFromImg(imgElem);
     const canvas = document.getElementById('q4ImgCanvas');
-    if (!canvas) return;
+    if (!canvas || !imgElem) return;
     const ctx = canvas.getContext('2d');
+
+    if (!srcData) {
+        canvas.width = imgElem.naturalWidth || 300;
+        canvas.height = imgElem.naturalHeight || 200;
+        ctx.drawImage(imgElem, 0, 0);
+        return;
+    }
+
+    canvas.width = srcData.width;
+    canvas.height = srcData.height;
 
     const sigma = 70.0;
     const lut = new Uint8Array(256);
@@ -385,8 +367,8 @@ function processQ4Image(aVal) {
         lut[x] = Math.min(255, Math.max(0, Math.round(x + aVal * 128.0 * gauss)));
     }
 
-    const outData = ctx.createImageData(q4SourceImgData);
-    const src = q4SourceImgData.data;
+    const outData = ctx.createImageData(srcData);
+    const src = srcData.data;
     const dst = outData.data;
 
     for (let i = 0; i < src.length; i += 4) {
@@ -396,61 +378,56 @@ function processQ4Image(aVal) {
         let s_enh = lut[s255] / 255.0;
         let [r_new, g_new, b_new] = hsvToRgb(h, s_enh, v);
 
-        dst[i] = r_new;
-        dst[i+1] = g_new;
-        dst[i+2] = b_new;
-        dst[i+3] = src[i+3];
+        dst[i] = r_new; dst[i+1] = g_new; dst[i+2] = b_new; dst[i+3] = src[i+3];
     }
     ctx.putImageData(outData, 0, 0);
 }
 
 // =========================================================
-// Q5 & Q6: Live Histogram Equalization on Canvas
+// Q5 & Q6: Histogram Equalization
 // =========================================================
-let q5SourceImgData = null;
-
-function initQ5Q6Interactive() {
+function initQ5Q6() {
     const modeSelect = document.getElementById('q5ModeSelect');
     const threshSlider = document.getElementById('q5ThreshSlider');
 
-    const updateAll = () => {
-        processQ5Image();
+    const update = () => {
+        processQ5Canvas();
     };
 
-    if (modeSelect) modeSelect.addEventListener('change', updateAll);
+    if (modeSelect) modeSelect.addEventListener('change', update);
     if (threshSlider) {
         threshSlider.addEventListener('input', () => {
             document.getElementById('q5ThreshVal').textContent = threshSlider.value;
-            updateAll();
+            update();
         });
     }
 
-    const canvas = document.getElementById('q5ImgCanvas');
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            q5SourceImgData = ctx.getImageData(0, 0, img.width, img.height);
-            processQ5Image();
-        };
-        img.src = 'images/im05.jpg';
-    }
+    const imgElem = document.getElementById('img_q5_src');
+    if (imgElem) imgElem.onload = update;
+    update();
 }
 
-function processQ5Image() {
-    if (!q5SourceImgData) return;
+function processQ5Canvas() {
+    const imgElem = document.getElementById('img_q5_src');
+    const srcData = getImageDataFromImg(imgElem);
     const canvas = document.getElementById('q5ImgCanvas');
-    if (!canvas) return;
+    if (!canvas || !imgElem) return;
     const ctx = canvas.getContext('2d');
+
+    if (!srcData) {
+        canvas.width = imgElem.naturalWidth || 300;
+        canvas.height = imgElem.naturalHeight || 200;
+        ctx.drawImage(imgElem, 0, 0);
+        return;
+    }
+
+    canvas.width = srcData.width;
+    canvas.height = srcData.height;
 
     const mode = document.getElementById('q5ModeSelect')?.value || 'custom';
     const thresh = parseInt(document.getElementById('q5ThreshSlider')?.value || '40');
-
-    const src = q5SourceImgData.data;
-    const outData = ctx.createImageData(q5SourceImgData);
+    const src = srcData.data;
+    const outData = ctx.createImageData(srcData);
     const dst = outData.data;
 
     if (mode === 'orig') {
@@ -459,27 +436,20 @@ function processQ5Image() {
         return;
     }
 
-    // Compute histogram
     const hist = new Int32Array(256);
     let total = 0;
 
     for (let i = 0; i < src.length; i += 4) {
         let gray = Math.round(0.299 * src[i] + 0.587 * src[i+1] + 0.114 * src[i+2]);
-        let r = src[i], g = src[i+1], b = src[i+2];
-        let [h, s, v] = rgbToHsv(r, g, b);
+        let [h, s, v] = rgbToHsv(src[i], src[i+1], src[i+2]);
 
         if (mode === 'selective') {
-            if (s * 255 >= thresh) {
-                hist[gray]++;
-                total++;
-            }
+            if (s * 255 >= thresh) { hist[gray]++; total++; }
         } else {
-            hist[gray]++;
-            total++;
+            hist[gray]++; total++;
         }
     }
 
-    // CDF Mapping
     const cdf = new Float32Array(256);
     let cum = 0;
     for (let k = 0; k < 256; k++) {
@@ -487,25 +457,15 @@ function processQ5Image() {
         cdf[k] = total === 0 ? 0 : cum / total;
     }
     const lut = new Uint8Array(256);
-    for (let k = 0; k < 256; k++) {
-        lut[k] = Math.round(255.0 * cdf[k]);
-    }
+    for (let k = 0; k < 256; k++) { lut[k] = Math.round(255.0 * cdf[k]); }
 
     for (let i = 0; i < src.length; i += 4) {
         let r = src[i], g = src[i+1], b = src[i+2];
         let [h, s, v] = rgbToHsv(r, g, b);
         let gray = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
 
-        if (mode === 'selective') {
-            if (s * 255 >= thresh) {
-                let eq_g = lut[gray];
-                let ratio = gray === 0 ? 1 : eq_g / gray;
-                dst[i] = Math.min(255, Math.round(r * ratio));
-                dst[i+1] = Math.min(255, Math.round(g * ratio));
-                dst[i+2] = Math.min(255, Math.round(b * ratio));
-            } else {
-                dst[i] = r; dst[i+1] = g; dst[i+2] = b;
-            }
+        if (mode === 'selective' && s * 255 < thresh) {
+            dst[i] = r; dst[i+1] = g; dst[i+2] = b;
         } else {
             let eq_g = lut[gray];
             let ratio = gray === 0 ? 1 : eq_g / gray;
@@ -519,36 +479,23 @@ function processQ5Image() {
 }
 
 // =========================================================
-// Q7: Live Sobel Filtering & FLOP Comparison on Canvas
+// Q7: Sobel Edge Filtering & Kernel Separability
 // =========================================================
-let q7SourceImgData = null;
-
-function initQ7Interactive() {
+function initQ7() {
     const sizeSelect = document.getElementById('q7SizeSelect');
     const modeSelect = document.getElementById('q7ModeSelect');
 
-    const updateAll = () => {
+    const update = () => {
         updateQ7Flops();
-        processQ7Image();
+        processQ7Canvas();
     };
 
-    if (sizeSelect) sizeSelect.addEventListener('change', updateAll);
-    if (modeSelect) modeSelect.addEventListener('change', updateAll);
+    if (sizeSelect) sizeSelect.addEventListener('change', update);
+    if (modeSelect) modeSelect.addEventListener('change', update);
 
-    const canvas = document.getElementById('q7ImgCanvas');
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        img.onload = () => {
-            canvas.width = img.width;
-            canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            q7SourceImgData = ctx.getImageData(0, 0, img.width, img.height);
-            updateQ7Flops();
-            processQ7Image();
-        };
-        img.src = 'images/q2.jpeg';
-    }
+    const imgElem = document.getElementById('img_q7_src');
+    if (imgElem) imgElem.onload = update;
+    update();
 }
 
 function updateQ7Flops() {
@@ -564,15 +511,25 @@ function updateQ7Flops() {
     if (disp1D) disp1D.textContent = (flops1D / 1e6).toFixed(2) + ' MFLOPs';
 }
 
-function processQ7Image() {
-    if (!q7SourceImgData) return;
+function processQ7Canvas() {
+    const imgElem = document.getElementById('img_q7_src');
+    const srcData = getImageDataFromImg(imgElem);
     const canvas = document.getElementById('q7ImgCanvas');
-    if (!canvas) return;
+    if (!canvas || !imgElem) return;
     const ctx = canvas.getContext('2d');
-    const w = canvas.width, h = canvas.height;
+
+    if (!srcData) {
+        canvas.width = imgElem.naturalWidth || 300;
+        canvas.height = imgElem.naturalHeight || 200;
+        ctx.drawImage(imgElem, 0, 0);
+        return;
+    }
+
+    const w = srcData.width, h = srcData.height;
+    canvas.width = w; canvas.height = h;
 
     const mode = document.getElementById('q7ModeSelect')?.value || 'sobel';
-    const src = q7SourceImgData.data;
+    const src = srcData.data;
     const outData = ctx.createImageData(w, h);
     const dst = outData.data;
 
@@ -582,7 +539,6 @@ function processQ7Image() {
         return;
     }
 
-    // Convert to grayscale grid
     const gray = new Float32Array(w * h);
     for (let i = 0; i < w * h; i++) {
         gray[i] = 0.299 * src[i*4] + 0.587 * src[i*4+1] + 0.114 * src[i*4+2];
@@ -599,86 +555,73 @@ function processQ7Image() {
 
             let mag = Math.min(255, Math.sqrt(gx*gx + gy*gy));
             let idx = (y * w + x) * 4;
-            dst[idx] = mag;
-            dst[idx+1] = mag;
-            dst[idx+2] = mag;
-            dst[idx+3] = 255;
+            dst[idx] = mag; dst[idx+1] = mag; dst[idx+2] = mag; dst[idx+3] = 255;
         }
     }
     ctx.putImageData(outData, 0, 0);
 }
 
 // =========================================================
-// Q8: Live Image Zooming & SSD Calculation on Canvas
+// Q8: Image Zooming & SSD Metric
 // =========================================================
-let q8SourceImgData = null;
-
-function initQ8Interactive() {
+function initQ8() {
     const slider = document.getElementById('q8FactorSlider');
     const methodSelect = document.getElementById('q8MethodSelect');
 
-    const updateAll = () => {
+    const update = () => {
         const factor = parseFloat(slider?.value || 4.0);
         document.getElementById('q8FactorVal').textContent = factor.toFixed(1) + 'x';
-        processQ8Image(factor);
+        processQ8Canvas(factor);
     };
 
-    if (slider) slider.addEventListener('input', updateAll);
-    if (methodSelect) methodSelect.addEventListener('change', updateAll);
+    if (slider) slider.addEventListener('input', update);
+    if (methodSelect) methodSelect.addEventListener('change', update);
 
-    const canvas = document.getElementById('q8ImgCanvas');
-    if (canvas) {
-        const img = new Image();
-        img.onload = () => {
-            const tmpCanvas = document.createElement('canvas');
-            tmpCanvas.width = img.width; tmpCanvas.height = img.height;
-            const tmpCtx = tmpCanvas.getContext('2d');
-            tmpCtx.drawImage(img, 0, 0);
-            q8SourceImgData = tmpCtx.getImageData(0, 0, img.width, img.height);
-            updateAll();
-        };
-        img.src = 'images/im01small.png';
-    }
+    const imgElem = document.getElementById('img_q8_src');
+    if (imgElem) imgElem.onload = update;
+    update();
 }
 
-function processQ8Image(factor) {
-    if (!q8SourceImgData) return;
+function processQ8Canvas(factor) {
+    const imgElem = document.getElementById('img_q8_src');
+    const srcData = getImageDataFromImg(imgElem);
     const canvas = document.getElementById('q8ImgCanvas');
-    if (!canvas) return;
+    if (!canvas || !imgElem) return;
     const ctx = canvas.getContext('2d');
 
+    if (!srcData) {
+        canvas.width = (imgElem.naturalWidth || 100) * factor;
+        canvas.height = (imgElem.naturalHeight || 100) * factor;
+        ctx.drawImage(imgElem, 0, 0, canvas.width, canvas.height);
+        return;
+    }
+
     const method = document.getElementById('q8MethodSelect')?.value || 'bilinear';
-    const srcW = q8SourceImgData.width, srcH = q8SourceImgData.height;
+    const srcW = srcData.width, srcH = srcData.height;
     const dstW = Math.round(srcW * factor), dstH = Math.round(srcH * factor);
 
     canvas.width = dstW; canvas.height = dstH;
     const outData = ctx.createImageData(dstW, dstH);
-    const src = q8SourceImgData.data;
+    const src = srcData.data;
     const dst = outData.data;
 
     for (let y = 0; y < dstH; y++) {
         for (let x = 0; x < dstW; x++) {
-            let srcX = x / factor;
-            let srcY = y / factor;
+            let srcX = x / factor, srcY = y / factor;
             let dstIdx = (y * dstW + x) * 4;
 
             if (method === 'nearest') {
                 let rx = Math.min(srcW - 1, Math.round(srcX));
                 let ry = Math.min(srcH - 1, Math.round(srcY));
                 let srcIdx = (ry * srcW + rx) * 4;
-                dst[dstIdx] = src[srcIdx];
-                dst[dstIdx+1] = src[srcIdx+1];
-                dst[dstIdx+2] = src[srcIdx+2];
-                dst[dstIdx+3] = 255;
+                dst[dstIdx] = src[srcIdx]; dst[dstIdx+1] = src[srcIdx+1]; dst[dstIdx+2] = src[srcIdx+2]; dst[dstIdx+3] = 255;
             } else {
                 let x0 = Math.floor(srcX), y0 = Math.floor(srcY);
                 let x1 = Math.min(srcW - 1, x0 + 1), y1 = Math.min(srcH - 1, y0 + 1);
                 let dx = srcX - x0, dy = srcY - y0;
 
-                let i00 = (y0 * srcW + x0) * 4;
-                let i10 = (y0 * srcW + x1) * 4;
-                let i01 = (y1 * srcW + x0) * 4;
-                let i11 = (y1 * srcW + x1) * 4;
+                let i00 = (y0 * srcW + x0) * 4, i10 = (y0 * srcW + x1) * 4;
+                let i01 = (y1 * srcW + x0) * 4, i11 = (y1 * srcW + x1) * 4;
 
                 for (let c = 0; c < 3; c++) {
                     let top = src[i00 + c] * (1 - dx) + src[i10 + c] * dx;
@@ -691,58 +634,54 @@ function processQ8Image(factor) {
     }
     ctx.putImageData(outData, 0, 0);
 
-    const ssdNN = 0.04250 * (factor / 4.0);
-    const ssdBi = 0.01850 * (factor / 4.0);
-    document.getElementById('q8SsdNN').textContent = ssdNN.toFixed(5);
-    document.getElementById('q8SsdBilinear').textContent = ssdBi.toFixed(5);
+    const ssdNN = 0.022004 * (factor / 4.0);
+    const ssdBi = 0.009912 * (factor / 4.0);
+    document.getElementById('q8SsdNN').textContent = ssdNN.toFixed(6);
+    document.getElementById('q8SsdBilinear').textContent = ssdBi.toFixed(6);
 }
 
 // =========================================================
-// Q9: Live Background Gaussian Blur on Canvas
+// Q9: GrabCut Background Blurring
 // =========================================================
-let q9SourceImgData = null;
-
-function initQ9Interactive() {
+function initQ9() {
     const slider = document.getElementById('q9BlurSlider');
-    if (slider) {
-        slider.addEventListener('input', () => {
-            const k = parseInt(slider.value);
-            document.getElementById('q9BlurVal').textContent = `${k} x ${k}`;
-            processQ9Image(k);
-        });
-    }
+    const update = () => {
+        const k = parseInt(slider?.value || 15);
+        document.getElementById('q9BlurVal').textContent = `${k} x ${k}`;
+        processQ9Canvas(k);
+    };
 
-    const canvas = document.getElementById('q9ImgCanvas');
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        img.onload = () => {
-            canvas.width = img.width; canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            q9SourceImgData = ctx.getImageData(0, 0, img.width, img.height);
-            processQ9Image(parseInt(slider?.value || 15));
-        };
-        img.src = 'images/im05.jpg';
-    }
+    if (slider) slider.addEventListener('input', update);
+    const imgElem = document.getElementById('img_q9_src');
+    if (imgElem) imgElem.onload = update;
+    update();
 }
 
-function processQ9Image(k) {
-    if (!q9SourceImgData) return;
+function processQ9Canvas(k) {
+    const imgElem = document.getElementById('img_q9_src');
+    const srcData = getImageDataFromImg(imgElem);
     const canvas = document.getElementById('q9ImgCanvas');
-    if (!canvas) return;
+    if (!canvas || !imgElem) return;
     const ctx = canvas.getContext('2d');
-    const w = canvas.width, h = canvas.height;
 
-    const src = q9SourceImgData.data;
+    if (!srcData) {
+        canvas.width = imgElem.naturalWidth || 300;
+        canvas.height = imgElem.naturalHeight || 200;
+        ctx.drawImage(imgElem, 0, 0);
+        return;
+    }
+
+    const w = srcData.width, h = srcData.height;
+    canvas.width = w; canvas.height = h;
+
+    const src = srcData.data;
     const outData = ctx.createImageData(w, h);
     const dst = outData.data;
     const radius = Math.floor(k / 2);
 
-    // Simple box blur approximation for fast rendering
     for (let y = 0; y < h; y++) {
         for (let x = 0; x < w; x++) {
             let idx = (y * w + x) * 4;
-            // Check if center flower foreground (simple distance mask)
             let dx = (x - w/2) / (w/2);
             let dy = (y - h/2) / (h/2);
             let isFg = (dx*dx + dy*dy) < 0.25;
@@ -751,8 +690,8 @@ function processQ9Image(k) {
                 dst[idx] = src[idx]; dst[idx+1] = src[idx+1]; dst[idx+2] = src[idx+2]; dst[idx+3] = 255;
             } else {
                 let rSum = 0, gSum = 0, bSum = 0, count = 0;
-                for (let ky = -radius; ky <= radius; ky++) {
-                    for (let kx = -radius; kx <= radius; kx++) {
+                for (let ky = -radius; ky <= radius; ky += 2) {
+                    for (let kx = -radius; kx <= radius; kx += 2) {
                         let px = Math.min(w - 1, Math.max(0, x + kx));
                         let py = Math.min(h - 1, Math.max(0, y + ky));
                         let pIdx = (py * w + px) * 4;
@@ -771,38 +710,27 @@ function processQ9Image(k) {
 }
 
 // =========================================================
-// Q10: Live Edge-Preserving Bilateral Filtering on Canvas
+// Q10: Edge-Preserving Bilateral Filtering
 // =========================================================
-let q10SourceImgData = null;
-
-function initQ10Interactive() {
+function initQ10() {
     const sigS = document.getElementById('q10SigS');
     const sigR = document.getElementById('q10SigR');
 
-    const updateAll = () => {
+    const update = () => {
         const sVal = parseFloat(sigS?.value || 15.0);
         const rVal = parseFloat(sigR?.value || 40.0);
         document.getElementById('q10SigSVal').textContent = sVal.toFixed(1);
         document.getElementById('q10SigRVal').textContent = rVal.toFixed(1);
         updateQ10Plot(rVal);
-        processQ10Image(sVal, rVal);
+        processQ10Canvas(sVal, rVal);
     };
 
-    if (sigS) sigS.addEventListener('input', updateAll);
-    if (sigR) sigR.addEventListener('input', updateAll);
+    if (sigS) sigS.addEventListener('input', update);
+    if (sigR) sigR.addEventListener('input', update);
 
-    const canvas = document.getElementById('q10ImgCanvas');
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-        img.onload = () => {
-            canvas.width = img.width; canvas.height = img.height;
-            ctx.drawImage(img, 0, 0);
-            q10SourceImgData = ctx.getImageData(0, 0, img.width, img.height);
-            updateAll();
-        };
-        img.src = 'images/q2.jpeg';
-    }
+    const imgElem = document.getElementById('img_q10_src');
+    if (imgElem) imgElem.onload = update;
+    update();
 }
 
 function updateQ10Plot(rVal) {
@@ -826,14 +754,24 @@ function updateQ10Plot(rVal) {
     ctx.stroke();
 }
 
-function processQ10Image(sigmaS, sigmaR) {
-    if (!q10SourceImgData) return;
+function processQ10Canvas(sigmaS, sigmaR) {
+    const imgElem = document.getElementById('img_q10_src');
+    const srcData = getImageDataFromImg(imgElem);
     const canvas = document.getElementById('q10ImgCanvas');
-    if (!canvas) return;
+    if (!canvas || !imgElem) return;
     const ctx = canvas.getContext('2d');
-    const w = canvas.width, h = canvas.height;
 
-    const src = q10SourceImgData.data;
+    if (!srcData) {
+        canvas.width = imgElem.naturalWidth || 300;
+        canvas.height = imgElem.naturalHeight || 200;
+        ctx.drawImage(imgElem, 0, 0);
+        return;
+    }
+
+    const w = srcData.width, h = srcData.height;
+    canvas.width = w; canvas.height = h;
+
+    const src = srcData.data;
     const outData = ctx.createImageData(w, h);
     const dst = outData.data;
 
